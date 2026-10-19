@@ -1,3 +1,4 @@
+import { getPatientAppointments, readPatientAuth } from "@/native/patientApi";
 import {ar} from "date-fns/locale";
 import CareText from "@/components/CareText";
 import CustomerLoadState from "@/components/CustomerLoadState";
@@ -14,6 +15,33 @@ import { AnimatePresence } from "framer-motion";
 import { motion } from "@/components/motion/BatoMotion";
 import BookingCalendar from "../components/appointments/BookingCalendar";
 import { useLocation } from "../components/LocationContext";
+
+
+/** Adapt only documented fields; numeric appointment status codes are not documented. */
+function mapPatientAppointment(item) {
+  const date = String(item.appointment_start_date || item.date || '');
+  const time = String(item.appointment_start_time || item.time12 || '');
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  let hh = 0, mm = 0;
+  if (match) {
+    hh = (Number(match[1]) % 12) + (match[3].toUpperCase() === 'PM' ? 12 : 0);
+    mm = Number(match[2]);
+  } else {
+    const t = String(item.time24 || '').match(/^(\d{2}):(\d{2})/);
+    if (t) { hh = Number(t[1]); mm = Number(t[2]); }
+  }
+  const validDate = /^\d{4}-\d{2}-\d{2}$/.test(date);
+  const instant = validDate ? new Date(`${date}T${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:00+03:00`) : new Date(NaN);
+  return {
+    id: item.id,
+    appointment_date: Number.isNaN(instant.getTime()) ? '' : instant.toISOString(),
+    timezone: 'Asia/Kuwait',
+    service_name: item.service_name || '',
+    specialist_name: item.doctor_name || '',
+    // Numeric status IDs (e.g. "4") have no status dictionary in the collection.
+    status: 'unknown',
+  };
+}
 
 const STATUS_CONFIG = {
   requested: { label: "Awaiting confirmation", style: { background: "#f9f8f6", color: "#3a2e1e", border: "#c4aa8b" } },
@@ -72,10 +100,11 @@ function AppointmentCard({ appointment, upcoming = false }) {
 }
 
 export default function Appointments() {
-  const accountQuery = useQuery({ queryKey: ["appointmentsAccount"], queryFn: () => base44.auth.me(), retry: 1, gcTime: 0, refetchOnMount: "always" });
-  const user = !accountQuery.isFetching ? accountQuery.data : null;
+  const isPatientSession = Boolean(readPatientAuth());
+  const accountQuery = useQuery({ queryKey: ["appointmentsAccount"], queryFn: () => base44.auth.me(), retry: 1, gcTime: 0, refetchOnMount: "always", enabled: !isPatientSession });
+  const user = isPatientSession ? { email: null } : (!accountQuery.isFetching ? accountQuery.data : null);
   const [showBookingCalendar, setShowBookingCalendar] = useState(false);
-  const [showPast, setShowPast] = useState(false);
+  const [showPast, setShowPast] = useState(() => Boolean(readPatientAuth()));
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedService = findBatoService(searchParams.get("service"));
   useEffect(() => { if (selectedService) setShowBookingCalendar(true); }, [selectedService]);
@@ -85,16 +114,25 @@ export default function Appointments() {
 
 
 
-  const { data: appointments = [], isPending: appointmentsPending, isError: appointmentsError } = useQuery({
-    queryKey: ['appointments', user?.email],
-    queryFn: async () => base44.entities.Appointment.filter({ client_email: user.email }, '-appointment_date'),
+  const { data: appointments = [], isPending: appointmentsPending, isError: appointmentsError, error: appointmentsFailure } = useQuery({
+    queryKey: ['appointments', isPatientSession ? 'patient-api' : user?.email],
+    queryFn: async () => isPatientSession
+      ? (await getPatientAppointments()).map(mapPatientAppointment)
+      : base44.entities.Appointment.filter({ client_email: user.email }, '-appointment_date'),
     enabled: !!user,
   });
 
   const { upcoming: upcomingAppointments, history: pastAppointments } = partitionAppointments(appointments);
 
-  if (accountQuery.isPending || accountQuery.isFetching || (!!user && appointmentsPending)) return <CustomerLoadState />;
-  if (accountQuery.isError || appointmentsError) return <CustomerLoadState error onRetry={() => { accountQuery.refetch(); queryClient.invalidateQueries({queryKey:["appointments"]}); }} />;
+  if ((!isPatientSession && (accountQuery.isPending || accountQuery.isFetching)) || (!!user && appointmentsPending)) return <CustomerLoadState />;
+  if ((!isPatientSession && accountQuery.isError) || appointmentsError) return (
+    <div>
+      <CustomerLoadState error onRetry={() => { if (!isPatientSession) accountQuery.refetch(); queryClient.invalidateQueries({queryKey:["appointments"]}); }} />
+      {isPatientSession && <p role="alert" className="max-w-lg mx-auto px-4 text-sm break-words" style={{ color: '#a32929' }}>
+        {appointmentsFailure?.message || 'Unable to load appointments.'}
+      </p>}
+    </div>
+  );
 
   return (
     <div className={`min-h-screen pb-8 ${isRTL ? 'text-right' : 'text-left'}`}

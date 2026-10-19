@@ -1,3 +1,4 @@
+import {clearPatientAuth} from "../native/patientApi.js";
 import {TEST_PERSONAS, seedPersona} from "./personas.js";
 import {readLocalSession, clearLocalSession, localAccountDataKey} from "../native/localAuth.js";
 const STANDALONE = import.meta.env?.MODE === 'mobile';
@@ -10,6 +11,7 @@ export function hasStandaloneSession() { return STANDALONE && Boolean(readLocalS
 export function endStandaloneSession() {
   if (!STANDALONE) return;
   clearLocalSession(storage());
+  clearPatientAuth();
   // A previous build used a demo session; it must not bypass the new sign-in screen.
   storage()?.removeItem('bato-standalone-session-v1');
   state = undefined;

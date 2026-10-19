@@ -73,6 +73,7 @@ const getNavigationGroups = (t) => [
     items: [
       { title: t("Billing", "الفواتير"), url: createPageUrl("MyBilling"), icon: Receipt, keywords: ["billing"] },
       { title: t("Profile", "الملف الشخصي"), url: createPageUrl("Profile"), icon: User, keywords: ["profile"] },
+      { title: t("Medical Reports", "التقارير الطبية"), url: "/MedicalReports", icon: FileText, keywords: ["medical", "reports", "تحاليل", "تقارير"] },
     ]
   },
 ];

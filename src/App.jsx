@@ -19,6 +19,7 @@ import MobileNavigation from './native/MobileNavigation';
 import { setupIframeMessaging } from './lib/iframe-messaging';
 import PageNotFound from './lib/PageNotFound';
 import ClinicAppointments from './pages/ClinicAppointments';
+import MedicalReports from './pages/MedicalReports';
 import TestExplorerOnboarding from './pages/TestExplorerOnboarding';
 import ProfileConnection from './pages/ProfileConnection';
 import AestheticCare from './pages/AestheticCare';
@@ -82,6 +83,7 @@ const AuthenticatedApp = () => {
           <Route key={path} path={`/${path}`} element={<Page />} />
         ))}
         <Route path="/ClinicAppointments" element={<ClinicAppointments />} />
+        <Route path="/MedicalReports" element={<MedicalReports />} />
         <Route path="/ClinicServices" element={<ClinicServices />} />
         <Route path="/ClinicTeam" element={<ClinicTeam />} />
         <Route path="/ClinicLocation" element={<ClinicLocation />} />
@@ -101,14 +103,13 @@ const AuthenticatedApp = () => {
 
 function AppContent() {
   const location = useLocation();
-  // iOS standalone mode follows Welcome -> Sign In -> Onboarding -> Dashboard.
-  // No actual account verification or network call happens until APIs are integrated.
+  // Standalone entry begins at Sign In; retain existing session and onboarding routing.
   if (isStandaloneBuild) {
     const path = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
-    if (path === '/welcome') return <Welcome />;
+    if (path === '/welcome') return <Navigate to="/SignIn" replace />;
     if (path === '/signin' || path === '/login' || path === '/demosignin' || path === '/switchaccount') return <SignIn />;
-    if (path === '/') return <Navigate to={hasStandaloneSession() ? (standaloneOnboardingComplete() ? '/Dashboard' : '/Onboarding') : '/Welcome'} replace />;
-    if (!hasStandaloneSession()) return <Navigate to="/Welcome" replace />;
+    if (path === '/') return <Navigate to={hasStandaloneSession() ? (standaloneOnboardingComplete() ? '/Dashboard' : '/Onboarding') : '/SignIn'} replace />;
+    if (!hasStandaloneSession()) return <Navigate to="/SignIn" replace />;
     if (path !== "/onboarding" && !standaloneOnboardingComplete()) return <Navigate to="/Onboarding" replace />;
     return <AuthenticatedApp />;
   }

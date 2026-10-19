@@ -1,3 +1,4 @@
+import { getPatientProfile, readPatientAuth } from "@/native/patientApi";
 import {validBirthDate} from "@/lib/customerDate";
 import {ar} from "date-fns/locale";
 import { format } from "@/lib/customerFormatting";
@@ -33,6 +34,7 @@ const TIER_ACCENT = { bronze: "#c4aa8b", silver: "#7c8689", gold: "#e7cb50", pla
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [accountError,setAccountError]=useState(false);
+  const isPatientSession = Boolean(readPatientAuth());
   const [params,setParams]=useSearchParams();
   const currentTab=["personal","medical","referrals","account"].includes(params.get("tab"))?params.get("tab"):"personal";
   const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +49,17 @@ export default function Profile() {
 
   const loadUser = async () => {
     try {
-      const userData = await base44.auth.me();
+      const patient = isPatientSession ? await getPatientProfile() : null;
+      const userData = patient ? {
+        // Map API data to existing design fields only; do not add or repurpose UI fields.
+        full_name: patient.full_name || '',
+        phone: patient.mobile_number && patient.country_code
+          ? `${patient.country_code}${patient.mobile_number}`
+          : (patient.full_mobile_number || patient.mobile_number || ''),
+        date_of_birth: patient.dob || '',
+        email: '', created_date: null,
+        emergency_contact: '', medical_history: '', allergies: ''
+      } : await base44.auth.me();
       setUser(userData);
       setFormData({
         full_name: userData.full_name || '',
@@ -61,8 +73,8 @@ export default function Profile() {
   };
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (data) => {if(!data.full_name.trim() || !validBirthDate(data.date_of_birth))throw new Error('Check name and birth date');return base44.auth.updateMe({...data,full_name:data.full_name.trim(),phone:data.phone.trim()});},
-    onError: () => toast.error(t('Could not save your profile. Check your name and birth date, then try again.', 'تعذر حفظ ملفك. تحقق من اسمك وتاريخ ميلادك وحاول مرة أخرى.')),
+    mutationFn: async (data) => {if(isPatientSession) throw new Error('Profile updates are not yet supported by the patient API.');if(!data.full_name.trim() || !validBirthDate(data.date_of_birth))throw new Error('Check name and birth date');return base44.auth.updateMe({...data,full_name:data.full_name.trim(),phone:data.phone.trim()});},
+    onError: (error) => toast.error(isPatientSession ? error.message : t('Could not save your profile. Check your name and birth date, then try again.', 'تعذر حفظ ملفك. تحقق من اسمك وتاريخ ميلادك وحاول مرة أخرى.')),
     onSuccess: () => { loadUser(); setIsEditing(false); toast.success(t('Profile updated', 'تم تحديث الملف الشخصي')); },
   });
 
@@ -138,7 +150,7 @@ export default function Profile() {
             <div>
               <h2 className="text-lg font-bold text-[#333435]">{user.full_name}</h2>
               <p className="text-sm text-[#7c8689] break-all">{user.email}</p>
-              <p className="text-xs text-[#7c8689] mt-0.5">{t("Member since", "عضو منذ")} {format(user.created_date, "MMMM yyyy",isRTL?{locale:ar}:{})}</p>
+              <p className="text-xs text-[#7c8689] mt-0.5">{t("Member since", "عضو منذ")} {user.created_date ? format(user.created_date, "MMMM yyyy",isRTL?{locale:ar}:{}) : "—"}</p>
             </div>
           </div>
         </div>

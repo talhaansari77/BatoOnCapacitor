@@ -1,3 +1,4 @@
+import { getPatientAppointments, readPatientAuth } from "@/native/patientApi";
 import BatoEmptyState from "@/components/ui/BatoEmptyState";
 import CustomerLoadState from "@/components/CustomerLoadState";
 import {rescheduleRequestContent} from "@/lib/rescheduleRequest";
@@ -26,6 +27,30 @@ import {Dialog,DialogContent,DialogTitle,DialogDescription} from "@/components/u
 import { toast } from "sonner";
 import { useLocation } from "../components/LocationContext";
 import BookingCalendar from "../components/appointments/BookingCalendar";
+
+/** Translate backend fields to the existing clinic appointment card shape. */
+function mapClinicPatientAppointment(item) {
+  const date = String(item.appointment_start_date || item.date || '');
+  const time = String(item.appointment_start_time || item.time12 || '');
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  const rawTime = String(item.time24 || '').match(/^(\d{2}):(\d{2})/);
+  const hour = match ? Number(match[1]) % 12 + (match[3].toUpperCase() === 'PM' ? 12 : 0) : rawTime ? Number(rawTime[1]) : 0;
+  const minute = match ? Number(match[2]) : rawTime ? Number(rawTime[2]) : 0;
+  const localDate = /^\d{4}-\d{2}-\d{2}$/.test(date)
+    ? `${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00+03:00`
+    : '';
+  const timestamp = localDate ? new Date(localDate) : new Date(NaN);
+  return {
+    id: String(item.id),
+    appointment_date: Number.isNaN(timestamp.getTime()) ? '' : timestamp.toISOString(),
+    timezone: 'Asia/Kuwait',
+    type: item.service_name || item.section_name || 'appointment',
+    service_name: item.service_name || '',
+    specialist_name: item.doctor_name || '',
+    // Status numbers aren't documented: never assign an invented status.
+    status: 'unknown',
+  };
+}
 
 const getStatusConfig = (t) => ({
   requested: { label: t("Awaiting confirmation", "بانتظار التأكيد"), bg: "#fff7ed", color: "#9a3412", border: "#fed7aa" },
@@ -173,14 +198,15 @@ function UpcomingHero({appointment,onReschedule,onBook,t}) {
 }
 
 export default function ClinicAppointments() {
-  const [user, setUser] = useState(null);
+  const isPatientSession = Boolean(readPatientAuth());
+  const [user, setUser] = useState(() => isPatientSession ? { email: null } : null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [showBooking, setShowBooking] = useState(false);
   const [bookingType, setBookingType] = useState("treatment");
   const [bookingDepartment, setBookingDepartment] = useState("general_consultation");
   const [showReschedule, setShowReschedule] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [showPast, setShowPast] = useState(false);
+  const [showPast, setShowPast] = useState(() => Boolean(readPatientAuth()));
   const [historyLimit,setHistoryLimit] = useState(8);
   const [bookingProgramId, setBookingProgramId] = useState(null);
   const [userError,setUserError]=useState(false);
@@ -202,15 +228,17 @@ export default function ClinicAppointments() {
   const INSTRUCTIONS = getInstructions(t);
   const BOOKING_TYPES = getBookingTypes(t);
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => setUserError(true)); }, []);
+  useEffect(() => { if (!isPatientSession) base44.auth.me().then(setUser).catch(() => setUserError(true)); }, [isPatientSession]);
 
   const { data: appointments = [], isPending: appointmentsPending, isError: appointmentsError } = useQuery({
-    queryKey: ["appointments", user?.email],
-    queryFn: () => base44.entities.Appointment.filter({ client_email: user.email }, "-appointment_date"),
+    queryKey: ["appointments", isPatientSession ? "patient-api" : user?.email],
+    queryFn: () => isPatientSession
+      ? getPatientAppointments().then(items => items.map(mapClinicPatientAppointment))
+      : base44.entities.Appointment.filter({ client_email: user.email }, "-appointment_date"),
     enabled: !!user, refetchOnMount: "always", refetchInterval:60000,
   });
 
-  const packageQuery=useQuery({queryKey:["bookingPrograms",user?.email],queryFn:()=>base44.entities.Package.filter({client_email:user.email}),enabled:!!user});
+  const packageQuery=useQuery({queryKey:["bookingPrograms",user?.email],queryFn:()=>base44.entities.Package.filter({client_email:user.email}),enabled:!!user && !isPatientSession});
   const bookingProgram=bookingProgramId?packageQuery.data?.find(p=>p.id===bookingProgramId&&p.client_email===user?.email&&p.status==="active"):null;
 
   const selection = appointmentSelection(appointments,searchParams.get("appointment"));
