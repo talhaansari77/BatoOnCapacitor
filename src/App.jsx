@@ -33,8 +33,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SwitchAccount from './pages/SwitchAccount';
 import { useLocation, Navigate } from 'react-router-dom';
 import { hasStandaloneSession, isStandaloneBuild, standaloneOnboardingComplete } from './test-mode/previewClient';
-import DemoSignIn from './pages/DemoSignIn';
-import StandaloneDemoNotice from './native/StandaloneDemoNotice';
+import SignIn from './pages/SignIn';
 import StandaloneErrorBoundary from './native/StandaloneErrorBoundary';
 import Welcome from './pages/Welcome';
 
@@ -75,7 +74,6 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <LayoutWrapper currentPageName={mainPageKey}>
-      {isStandaloneBuild && <StandaloneDemoNotice />}
       <StandaloneErrorBoundary pathname={activeLocation.pathname}>
       <Routes>
         <Route path="/" element={<MainPage />} />
@@ -102,12 +100,13 @@ const AuthenticatedApp = () => {
 
 function AppContent() {
   const location = useLocation();
-  // Offline iOS builds use a public Welcome -> Demo sign-in -> Onboarding flow.
-  // No Base44 authentication, live SDK, or public-settings request is used.
+  // iOS standalone mode follows Welcome -> Sign In -> Onboarding -> Dashboard.
+  // No actual account verification or network call happens until APIs are integrated.
   if (isStandaloneBuild) {
     const path = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
-    if (path === '/' || path === '/welcome') return <Welcome />;
-    if (path === '/demosignin' || path === '/switchaccount') return <DemoSignIn />;
+    if (path === '/welcome') return <Welcome />;
+    if (path === '/signin' || path === '/login' || path === '/demosignin' || path === '/switchaccount') return <SignIn />;
+    if (path === '/') return <Navigate to={hasStandaloneSession() ? (standaloneOnboardingComplete() ? '/Dashboard' : '/Onboarding') : '/Welcome'} replace />;
     if (!hasStandaloneSession()) return <Navigate to="/Welcome" replace />;
     if (path !== "/onboarding" && !standaloneOnboardingComplete()) return <Navigate to="/Onboarding" replace />;
     return <AuthenticatedApp />;

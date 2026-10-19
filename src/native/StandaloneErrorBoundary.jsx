@@ -5,7 +5,7 @@ export default class StandaloneErrorBoundary extends React.Component {
   state = { error: null };
   static getDerivedStateFromError(error) { return { error }; }
   componentDidCatch(error, info) {
-    console.error('[BATO offline preview] Screen render failure:', error, info);
+    console.error('[BATO iOS] Screen render failure:', error, info);
   }
   componentDidUpdate(prevProps) {
     if (prevProps.pathname !== this.props.pathname && this.state.error) {
@@ -16,9 +16,9 @@ export default class StandaloneErrorBoundary extends React.Component {
     if (!this.state.error) return this.props.children;
     return (
       <section className="max-w-md mx-auto my-8 px-6 text-center" role="alert">
-        <h2 className="text-xl font-semibold text-[#3a2e1e]">This demo screen couldn't open</h2>
+        <h2 className="text-xl font-semibold text-[#3a2e1e]">This screen couldn't open</h2>
         <p className="text-sm text-[#7c8689] mt-3 mb-5">
-          Some screens still require services that are not connected in this offline iOS preview.
+          Some features are not yet connected to the clinic backend.
           Check the Xcode or Safari console for the actual error.
         </p>
         <button type="button" onClick={() => this.setState({error:null})}

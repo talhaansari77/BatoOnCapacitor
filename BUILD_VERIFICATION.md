@@ -1,19 +1,10 @@
-# Build verification — 19 October 2026
+# Build and test status — local sign-in edition
 
-## Passed checks
+- PASS: Local-only sign-in session helper tests (`npm run test:local-auth`): 2 tests.
+- PASS: iOS-mode offline-adapter integration check executed on source: local login, account isolation, onboarding persistence, logout, fictional product records.
+- PASS: Syntax parsing of 7 edited JSX/JS files with the installed TypeScript parser.
+- PASS: 12 of the 14 original smoke tests without npm packages installed.
+- NOT RUN: Two other tests depend on `lucide-react` and `date-fns`, neither installed in this environment.
+- NOT RUN: Full Vite bundle and Xcode simulator compilation. npm registry was unreachable here (`EAI_AGAIN`).
 
-- Syntax transpilation: modified React/JS files (10 files) passed TypeScript transpileModule parser diagnostics.
-- `node --test src/test-mode/previewClient.test.mjs src/test-mode/entityResponse.test.mjs`: 4/4 tests passed.
-- Isolated standalone mobile-path test: local fictional account, profile create/update, persistent onboarding-complete flag, no live SDK calls, file-upload blocking, and logout redirect passed.
-
-## Not verified in this environment
-
-- Could not run `npm install`, `vite build --mode mobile`, `npx cap add ios`, or launch an iOS simulator; the environment cannot resolve the npm registry and is not macOS with Xcode.
-- Screen-by-screen iOS testing, actual IPA compilation, Apple provisioning/signing, and native plugin compatibility remain for the user's Mac.
-- Backend, real authentication, live messaging, appointments, and purchases deliberately deferred.
-
-## Expected flow for first iOS launch
-
-`Welcome` → `DemoSignIn` → `Onboarding` → `Dashboard`
-
-All records are fictional and stored locally. No real patient data should be entered into this preview.
+On Mac, run `npm install && npm run ios:local`, then Xcode → Run. Build/install confirmation requires that native run.

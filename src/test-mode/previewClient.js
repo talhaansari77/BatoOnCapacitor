@@ -1,43 +1,65 @@
 import {TEST_PERSONAS, seedPersona} from "./personas.js";
+import {readLocalSession, clearLocalSession, localAccountDataKey} from "../native/localAuth.js";
 const STANDALONE = import.meta.env?.MODE === 'mobile';
-const DEMO_SESSION = 'bato-standalone-session-v1';
 const ACTIVE = "bato-preview-persona-v1";
 const PREFIX = "bato-preview-data-v1:";
 const clone = value => value === undefined ? undefined : structuredClone(value);
 const storage = () => typeof window !== "undefined" ? (STANDALONE ? window.localStorage : window.sessionStorage) : null;
 export const isStandaloneBuild = STANDALONE;
-export function hasStandaloneSession() { return STANDALONE && storage()?.getItem(DEMO_SESSION) === 'yes'; }
-export function beginStandaloneSession() { if (STANDALONE) storage()?.setItem(DEMO_SESSION, 'yes'); }
+export function hasStandaloneSession() { return STANDALONE && Boolean(readLocalSession(storage())); }
 export function endStandaloneSession() {
   if (!STANDALONE) return;
-  storage()?.removeItem(DEMO_SESSION);
+  clearLocalSession(storage());
+  // A previous build used a demo session; it must not bypass the new sign-in screen.
+  storage()?.removeItem('bato-standalone-session-v1');
+  state = undefined;
   window.location.assign('/Welcome');
 }
 export function standaloneOnboardingComplete() {
   if (!STANDALONE) return false;
-  const persona = activePersona();
-  if (!persona) return false;
-  const saved = storage()?.getItem(PREFIX + persona.id);
+  const account = readLocalSession(storage());
+  if (!account) return false;
+  const saved = storage()?.getItem(localAccountDataKey(account.email));
   if (!saved) return false;
   try { return JSON.parse(saved)?.records?.BATOProfile?.some(p => p.completed === true) || false; }
   catch { return false; }
 }
 export function activePersona() {
-  return TEST_PERSONAS.find(p => p.id === storage()?.getItem(ACTIVE)) || (STANDALONE ? TEST_PERSONAS[0] : null);
+  // Standalone uses one fresh UI fixture per local email. The five QA personas
+  // still work unchanged in development builds.
+  if (STANDALONE) return TEST_PERSONAS[0];
+  return TEST_PERSONAS.find(p => p.id === storage()?.getItem(ACTIVE)) || null;
 }
 let state;
 function current() {
   const persona = activePersona();
   if (!persona) throw new Error("No preview persona selected");
-  if (!state || state.user.id !== "test-user-"+persona.id) {
-    try { state = JSON.parse(storage().getItem(PREFIX+persona.id)); } catch { state = null; }
-    if(!state?.records || state.user?.id !== "test-user-"+persona.id) state=seedPersona(persona);
+  const account = STANDALONE ? readLocalSession(storage()) : null;
+  if (STANDALONE && !account) throw new Error('Local sign-in required');
+  const uid = STANDALONE ? 'local-user-' + account.email : 'test-user-' + persona.id;
+  const key = STANDALONE ? localAccountDataKey(account.email) : PREFIX + persona.id;
+  if (!state || state.user.id !== uid) {
+    try { state = JSON.parse(storage().getItem(key)); } catch { state = null; }
+    if (!state?.records || state.user?.id !== uid) {
+      state = seedPersona(persona);
+      if (STANDALONE) {
+        state.user = { ...state.user, id: uid, email: account.email, full_name: account.name };
+        state.records.User = [{ ...state.user }];
+        // Avoid development-fixture labels in the main UI.
+        for (const item of state.records.Product || []) {
+          item.name = item.category === 'shampoo' ? 'BATO Shampoo' : 'BATO Serum';
+          item.description = 'Product details will be available from the clinic.';
+        }
+      }
+    }
   }
   return state;
 }
 function save() {
-  try { storage()?.setItem(PREFIX+activePersona().id,JSON.stringify(current())); }
-  catch { /* Large uploaded files remain in memory until reset/reload. */ }
+  try {
+    const key = STANDALONE ? localAccountDataKey(readLocalSession(storage()).email) : PREFIX + activePersona().id;
+    storage()?.setItem(key, JSON.stringify(current()));
+  } catch { /* Storage can be unavailable or full; preserve UI state in memory. */ }
 }
 export function testSnapshot() { return clone(current()); }
 export function selectPersona(id) {
@@ -118,7 +140,7 @@ const simulated = {
   auth:{
     me:async()=>clone(current().user), isAuthenticated:async()=>STANDALONE ? hasStandaloneSession() : true,
     updateMe:async data=>{fail(true);const s=current();Object.assign(s.user,clone(data),{id:s.user.id,email:s.user.email,is_test_persona:true,role:"user"});log("User","update",s.user.id);return clone(s.user);},
-    logout:()=>STANDALONE?endStandaloneSession():selectPersona(null),redirectToLogin:()=>{window.location.assign(STANDALONE?"/DemoSignIn":"/Dashboard");}
+    logout:()=>STANDALONE?endStandaloneSession():selectPersona(null),redirectToLogin:()=>{window.location.assign(STANDALONE?"/SignIn":"/Dashboard");}
   },
   appLogs:{logUserInApp:async()=>{}},
   functions:{invoke:async(name,data={})=>{

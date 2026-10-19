@@ -1,14 +1,9 @@
-# BATO Clinic — Capacitor standalone iOS UI preview
+# BATO Clinic — iOS standalone UI source
 
-This archive contains the **original Base44 export** plus a **Capacitor iOS mobile build adaptation**. The native application starts at Welcome, has a local simulated sign-in, runs the original onboarding screens using fictional local records, and then shows the dashboard. It does **not** require a Base44 server or Node.js API for its initial UI flow.
+Base44 React/Vite source adapted for Capacitor, with local Sign In and Create Account UI screens.
 
-**Start here:** [STANDALONE_IOS_README.md](./STANDALONE_IOS_README.md)
+**Start here:** [LOCAL_IOS_AUTH_FLOW.md](LOCAL_IOS_AUTH_FLOW.md)
 
-On a Mac with a recent Node.js version and Xcode:
+On a Mac: `npm install` then `npm run ios:local`. Run `npm run native:sync` after edits to update the native WebView bundle.
 
-```bash
-npm install
-npm run ios:demo
-```
-
-**This is a source project, not a pre-signed IPA.** Backend functionality and real authentication are not implemented. Never enter real patient data in this demo.
+**This is not production authentication.** No API login is connected; use fictional test details only. A signed IPA requires Xcode and an Apple signing configuration.

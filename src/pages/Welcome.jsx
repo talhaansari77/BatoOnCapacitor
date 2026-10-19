@@ -42,7 +42,6 @@ export default function Welcome() {
   return (
     <div className="min-h-screen pb-16" style={{ background: "#eeebe6", paddingTop: isStandaloneBuild ? "env(safe-area-inset-top, 0px)" : undefined }}>
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-        {isStandaloneBuild && <div role="note" className="rounded-2xl border border-[#c4aa8b]/50 bg-white px-4 py-3 text-sm text-[#3a2e1e]">Offline iOS preview · Sample data only. Sign-in and clinic services are not connected yet.</div>}
 
         {/* ── Hero ── */}
         <motion.div
@@ -73,7 +72,7 @@ export default function Welcome() {
                 </Button>
               </a>
               <Button
-                onClick={() => isStandaloneBuild ? navigate("/DemoSignIn") : base44.auth.redirectToLogin()}
+                onClick={() => isStandaloneBuild ? navigate("/SignIn") : base44.auth.redirectToLogin()}
                 variant="outline"
                 className="w-full sm:w-auto h-12 px-6 rounded-2xl text-sm font-semibold"
                 style={{ borderColor: "rgba(196,170,139,0.4)", color: "#c4aa8b", background: "transparent" }}
@@ -107,7 +106,7 @@ export default function Welcome() {
                   </div>
                 </div>
                 <Button
-                  onClick={() => isStandaloneBuild ? navigate("/DemoSignIn") : base44.auth.redirectToLogin()}
+                  onClick={() => isStandaloneBuild ? navigate("/SignIn") : base44.auth.redirectToLogin()}
                   size="sm"
                   className="h-9 px-4 rounded-xl text-xs font-semibold border-0 whitespace-nowrap flex-shrink-0"
                   style={{ background: "#3a2e1e", color: "#c4aa8b" }}
@@ -177,7 +176,7 @@ export default function Welcome() {
           </p>
           <div className="flex flex-col sm:flex-row gap-2">
             <Button
-              onClick={() => isStandaloneBuild ? navigate("/DemoSignIn") : base44.auth.redirectToLogin()}
+              onClick={() => isStandaloneBuild ? navigate("/SignIn") : base44.auth.redirectToLogin()}
               className="h-11 px-5 rounded-2xl text-sm font-semibold border-0"
               style={{ background: "#3a2e1e", color: "#eeebe6" }}
             >
@@ -185,7 +184,7 @@ export default function Welcome() {
               Sign In to Connect Profile
             </Button>
             <Button
-              onClick={() => isStandaloneBuild ? navigate("/DemoSignIn") : base44.auth.redirectToLogin()}
+              onClick={() => isStandaloneBuild ? navigate("/SignIn") : base44.auth.redirectToLogin()}
               variant="outline"
               className="h-11 px-5 rounded-2xl text-sm font-semibold"
               style={{ borderColor: "rgba(58,46,30,0.2)", color: "#3a2e1e" }}
@@ -216,7 +215,7 @@ export default function Welcome() {
                 </Button>
               </a>
               <Button
-                onClick={() => isStandaloneBuild ? navigate("/DemoSignIn") : base44.auth.redirectToLogin()}
+                onClick={() => isStandaloneBuild ? navigate("/SignIn") : base44.auth.redirectToLogin()}
                 variant="outline"
                 className="h-12 px-6 rounded-2xl text-sm font-semibold w-full sm:w-auto"
                 style={{ borderColor: "rgba(196,170,139,0.4)", color: "#c4aa8b", background: "transparent" }}

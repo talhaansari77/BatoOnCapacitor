@@ -12,11 +12,13 @@
     "native:build": "vite build --mode mobile",
     "native:init": "node scripts/setup-native.mjs",
     "native:init:ios": "node scripts/setup-native.mjs --ios",
-    "ios:demo": "npm run native:init:ios && npx cap open ios",
+    "ios:demo": "npm run ios:local",
     "native:sync": "npm run native:build && cap sync",
     "native:android": "npm run native:sync && cap open android",
     "native:ios": "npm run native:sync && cap open ios",
-    "test:smoke": "node --test src/test-mode/*.test.mjs"
+    "test:smoke": "node --test src/test-mode/*.test.mjs",
+    "ios:local": "npm run native:init:ios && npx cap open ios",
+    "test:local-auth": "node --test src/native/localAuth.test.mjs"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.54",

@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
       setUser(started ? await base44.auth.me() : null);
       setIsAuthenticated(started);
       setAuthError(null);
-      setAppPublicSettings({ id: 'offline-demo', public_settings: {} });
+      setAppPublicSettings({ id: 'bato-ios-local', public_settings: {} });
       setIsLoadingPublicSettings(false);
       setIsLoadingAuth(false);
       return;
