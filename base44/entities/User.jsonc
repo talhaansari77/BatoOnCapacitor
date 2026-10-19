@@ -1,0 +1,58 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "visual_style": {
+      "type": "string",
+      "enum": [
+        "atelier",
+        "monolith",
+        "prism",
+        "contour"
+      ],
+      "description": "Customer visual identity preference"
+    },
+    "appearance_mode": {
+      "type": "string",
+      "enum": [
+        "system",
+        "light",
+        "dark"
+      ],
+      "description": "Customer device appearance preference"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth"
+    },
+    "emergency_contact": {
+      "type": "string",
+      "description": "Emergency contact information"
+    },
+    "medical_history": {
+      "type": "string",
+      "description": "Relevant medical history"
+    },
+    "allergies": {
+      "type": "string",
+      "description": "Known allergies"
+    },
+    "profile_photo": {
+      "type": "string",
+      "description": "Profile photo URL"
+    }
+  },
+  "required": [
+    "phone",
+    "date_of_birth",
+    "emergency_contact",
+    "medical_history",
+    "allergies",
+    "profile_photo"
+  ]
+}

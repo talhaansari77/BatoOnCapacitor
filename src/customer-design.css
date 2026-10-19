@@ -1,0 +1,153 @@
+/* Customer design contract: shared functional states and page composition.
+   Academy deliberately retains its own visual identity. */
+html[data-bato-style] {--bato-overlay:#f9f8f6;--bato-control-edge:#77716a;}
+html.dark[data-bato-style] {--bato-overlay:#30271d;--bato-control-edge:#a99a86;}
+html[data-bato-style="prism"] {--bato-overlay:#e8edec;--bato-control-edge:#697376;--style-page-muted:#41494b;}
+html.dark[data-bato-style="prism"] {--bato-overlay:#303a3e;--bato-control-edge:#a8b3b6;--style-page-muted:#bac2c4;}
+html[data-bato-style="contour"] {--bato-overlay:#eeebe6;--bato-control-edge:#76736f;}
+html.dark[data-bato-style="contour"] {--bato-overlay:#2d2e2f;--bato-control-edge:#aaa8a2;}
+
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog),.bato-customize) {
+ color:var(--style-ink);
+ --bato-text:var(--style-ink);--bato-muted:var(--style-muted);
+}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) :is(.text-gray-500,.text-gray-600,[class~="text-[#7c8689]"]) {
+ color:var(--style-muted)!important;
+}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) :is(input:not([type="radio"]):not([type="checkbox"]),textarea,select,[role="combobox"]) {
+ background:var(--style-soft)!important;color:var(--style-ink)!important;
+ border-color:var(--bato-control-edge)!important;border-radius:var(--style-control-radius);
+ min-height:44px;font-size:16px;line-height:1.5;
+}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) :is(input,textarea)::placeholder {color:var(--style-muted);opacity:1;}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog),.bato-customize,.bato-drawer) :is(button,a,input,textarea,select,[role="combobox"],summary):focus-visible {
+ outline:2px solid var(--style-ink)!important;outline-offset:3px;--tw-ring-shadow:0 0 #0000;
+}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-style-hero :is(button,a):focus-visible {outline-color:var(--style-hero-ink)!important;}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) :is(input,textarea,select)[aria-invalid="true"] {border-color:#b33d39!important;}
+html.dark[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) :is(input,textarea,select)[aria-invalid="true"] {border-color:#f28c88!important;}
+
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) [data-bato-button] {
+ min-height:44px;height:auto;white-space:normal;line-height:1.5;text-align:center;
+}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) [data-bato-size="icon"] {min-width:44px;}
+html[data-bato-style] .bato-dialog:not(.bato-academy-dialog) {background:var(--bato-overlay)!important;color:var(--style-ink);max-height:90dvh;overflow-y:auto;}
+html[data-bato-style] .bato-dialog:not(.bato-academy-dialog) [data-bato-variant="default"] {background:var(--style-control)!important;color:var(--style-control-ink)!important;}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) [data-bato-variant="outline"] {border-color:var(--bato-control-edge)!important;}
+html[data-bato-style] .bato-dialog:not(.bato-academy-dialog) [data-bato-variant="outline"] {background:transparent!important;color:var(--style-ink)!important;}
+html[data-bato-style] :is(#bato-main-content[data-bato-area="care"],.bato-dialog:not(.bato-academy-dialog)) [data-bato-button]:disabled {
+ background:var(--style-soft)!important;color:var(--style-muted)!important;box-shadow:none!important;opacity:.65;
+}
+html[data-bato-style] .bato-dialog:not(.bato-academy-dialog) [data-bato-button] :is(svg,span) {color:inherit!important;}
+html[data-bato-style]:has(#bato-main-content[data-bato-area="care"]) [data-radix-popper-content-wrapper]>[data-state] {
+ background:var(--bato-overlay)!important;color:var(--style-ink)!important;border-color:var(--style-line)!important;
+}
+html[data-bato-style]:has(#bato-main-content[data-bato-area="care"]) [data-radix-popper-content-wrapper] [data-highlighted] {
+ background:var(--style-soft)!important;color:var(--style-ink)!important;
+}
+
+/* Tabs, selected dates and times have one coherent, unmistakable selected state. */
+html[data-bato-style] #bato-main-content[data-bato-area="care"] [role="tablist"] {
+ height:auto;min-height:48px;gap:4px;background:var(--style-soft);padding:4px;border-radius:var(--style-control-radius);
+}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] [role="tab"] {
+ min-height:44px;white-space:normal;line-height:1.4;color:var(--style-muted)!important;background:transparent!important;border-radius:var(--style-control-radius);
+}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] [role="tab"][aria-selected="true"] {
+ background:var(--style-control)!important;color:var(--style-control-ink)!important;box-shadow:none!important;
+}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] [role="tab"][aria-selected="true"] :is(span,svg) {color:inherit!important;}
+html[data-bato-style] .bato-booking-dialog :is(.bato-date-option,.bato-time-option) {background:var(--style-soft)!important;color:var(--style-ink)!important;border:1px solid var(--style-line)!important;}
+html[data-bato-style] .bato-booking-dialog :is(.bato-date-option,.bato-time-option)[aria-pressed="true"] {background:var(--style-control)!important;color:var(--style-control-ink)!important;border-color:var(--style-control)!important;box-shadow:inset 0 0 0 1px currentColor;}
+html[data-bato-style] .bato-booking-dialog .bato-date-option:disabled {background:transparent!important;color:var(--style-muted)!important;border-color:transparent!important;opacity:.35;}
+html[data-bato-style] .bato-booking-dialog .bato-time-option :is(span,svg) {color:inherit!important;}
+html[data-bato-style] .bato-booking-dialog [data-bato-step-state="reached"] {background:var(--style-control)!important;color:var(--style-control-ink)!important;}
+html[data-bato-style] .bato-booking-dialog [data-bato-step-state="upcoming"] {background:var(--style-soft)!important;color:var(--style-muted)!important;}
+html[data-bato-style] .bato-booking-dialog [data-bato-step-line="reached"] {background:var(--style-control)!important;}
+html[data-bato-style] .bato-booking-dialog [data-bato-step-line="upcoming"] {background:var(--style-line)!important;}
+html[data-bato-style] .bato-booking-dialog {overflow:hidden;}
+
+/* Rhythm: open supporting rows, surfaced expanded content, distinct chapter introductions. */
+html[data-bato-style] body .bato-main #bato-main-content[data-bato-area="care"] .bato-journey-section[data-expanded="false"] {
+ background:transparent!important;border:0;border-bottom:1px solid var(--style-line);border-radius:0!important;box-shadow:none!important;backdrop-filter:none;
+}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-toggle {padding:18px 16px;gap:12px;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-journey-section[data-expanded="false"] .bato-section-toggle {padding-inline:0;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-toggle:hover {background:var(--style-soft);}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-body {padding:20px;border-color:var(--style-line);}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-intro {align-items:flex-start;padding-top:8px;margin-top:24px;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-title {font-size:20px;line-height:1.4;letter-spacing:-.015em;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-description {font-size:13px;line-height:1.6;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-page-heading>span {
+ background:var(--style-soft)!important;color:var(--style-muted)!important;border-color:var(--style-line)!important;
+}
+html[lang="ar"][data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-title {letter-spacing:normal;line-height:1.6;}
+
+/* Emblems are small supporting objects, never full hero surfaces. */
+html[data-bato-style] .bato-style-emblem {background:var(--style-control)!important;color:var(--style-control-ink)!important;box-shadow:none!important;}
+html[data-bato-style] body .bato-main #bato-main-content[data-bato-area="care"] .bato-style-emblem :is(svg,span,p) {color:var(--style-control-ink)!important;}
+html[data-bato-style] .bato-main>header .bato-style-emblem svg {color:var(--style-control-ink)!important;}
+.bato-hair-shortcuts {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;border-color:var(--style-line);}
+.bato-hair-shortcut {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 2px;min-height:64px;border-radius:var(--style-control-radius);font-size:12px;line-height:1.4;text-align:center;}
+html[data-bato-style] #bato-main-content .bato-hair-hero .bato-hair-shortcut {color:var(--style-hero-ink)!important;}
+.bato-hair-shortcut:hover {background:color-mix(in srgb,var(--style-hero-ink) 7%,transparent);}
+.bato-hair-shortcut svg {flex-shrink:0;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-hair-hero {padding:24px!important;}
+
+/* Empty and loading states belong to the selected material, not a fixed white card. */
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-empty-state[data-bato-empty-tone="warm"] {background:var(--style-surface)!important;border-color:var(--style-line)!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-empty-state:not([data-bato-empty-tone="inverse"])>p {color:var(--style-ink)!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-empty-state:not([data-bato-empty-tone="inverse"])>p+p {color:var(--style-muted)!important;line-height:1.7;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-appointment-empty .bato-empty-state {padding:8px 0;text-align:start;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-appointment-empty .bato-empty-state>p {max-width:none;margin-inline:0;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-skeleton-block {
+ background:linear-gradient(90deg,var(--style-soft),color-mix(in srgb,var(--style-ink) 12%,var(--style-page)),var(--style-soft))!important;background-size:200% 100%!important;
+}
+body:has([role="dialog"][data-state="open"]) .bato-test-toolbar {visibility:hidden;}
+@media(max-width:359px) {
+ html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-hair-hero {padding:20px!important;}
+ html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-toggle {grid-template-columns:32px minmax(0,1fr) 16px;gap:10px;}
+ html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-section-icon {width:32px;height:32px;}
+}
+@media(prefers-reduced-motion:reduce) {.bato-skeleton-block {animation:none!important;}}
+
+/* Compact functional objects share the same contrast roles as larger controls. */
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-channel-icon {background:var(--style-soft)!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-channel-icon svg {color:var(--style-ink)!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-filter-option {min-height:44px;background:var(--style-soft)!important;color:var(--style-ink)!important;border:1px solid var(--bato-control-edge)!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-filter-option[aria-pressed="true"],
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-product-add {background:var(--style-control)!important;color:var(--style-control-ink)!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-product-category {background:var(--bato-overlay)!important;color:var(--style-ink)!important;}
+html[data-bato-style] .bato-onboarding {background:var(--style-page)!important;color:var(--style-ink);}
+html[data-bato-style] .bato-onboarding>div:first-child {background:var(--style-surface)!important;border-color:var(--style-line)!important;}
+html[data-bato-style] .bato-onboarding [class~="text-[#333435]"] {color:var(--style-ink)!important;}
+html[data-bato-style] .bato-onboarding [class~="text-[#7c8689]"] {color:var(--style-muted)!important;}
+html[data-bato-style] .bato-onboarding .bato-progress-track {background:var(--style-soft)!important;}
+html[data-bato-style] .bato-onboarding .bato-progress-track>div {background:var(--style-control)!important;}
+/* Academy keeps its navy identity, including its tab bar. */
+html[data-bato-style] #bato-main-content[data-bato-area="academy"] [role="tablist"] {background:#e5eafa!important;height:auto;min-height:48px;gap:2px;}
+html[data-bato-style] #bato-main-content[data-bato-area="academy"] [role="tab"] {min-height:44px;white-space:normal;line-height:1.4;color:#374565!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="academy"] [role="tab"][aria-selected="true"] {background:#273858!important;color:#fff!important;}
+html.dark[data-bato-style] #bato-main-content[data-bato-area="academy"] [role="tablist"] {background:#27314a!important;}
+html.dark[data-bato-style] #bato-main-content[data-bato-area="academy"] [role="tab"] {color:#c5cde1!important;}
+html.dark[data-bato-style] #bato-main-content[data-bato-area="academy"] [role="tab"][aria-selected="true"] {background:#d9e3fa!important;color:#1b2337!important;}
+html[data-bato-style] .bato-drawer {background:var(--bato-overlay)!important;color:var(--style-ink)!important;}
+html[data-bato-style] .bato-drawer .bato-style-emblem svg {color:var(--style-control-ink)!important;}
+html[data-bato-style] body .bato-main #bato-main-content[data-bato-area="care"] .bato-style-hero .bato-hero-avatar {background:var(--style-hero-action)!important;color:var(--style-hero-action-ink)!important;}
+
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-onboarding-cta {background:var(--style-control)!important;color:var(--style-control-ink)!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-onboarding-choice {background:var(--style-surface)!important;border-color:var(--bato-control-edge)!important;box-shadow:none!important;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-onboarding-choice[aria-pressed="true"] {background:var(--style-soft)!important;box-shadow:inset 0 0 0 2px var(--style-ink)!important;}
+
+/* Populated record details and recovery states use the same functional colors. */
+html[data-bato-style] .bato-dialog:not(.bato-academy-dialog) .bato-record-action {background:var(--style-control)!important;color:var(--style-control-ink)!important;min-height:44px;}
+html[data-bato-style] #bato-main-content[data-bato-area="care"] [role="tabpanel"]:focus-visible {outline:2px solid var(--style-ink);outline-offset:4px;}
+
+/* Conversation chrome stays compact; the composer keeps a usable writing width. */
+html[data-bato-style] body .bato-main #bato-main-content[data-bato-area="care"] .bato-conversation-header {padding:12px!important;gap:8px!important;border-bottom-left-radius:0!important;border-bottom-right-radius:0!important;}
+.bato-composer-row textarea {min-width:0;}
+@media(max-width:359px){
+ .bato-composer-row {flex-wrap:wrap;}
+ .bato-composer-row textarea {flex-basis:100%;}
+ .bato-composer-row>button:first-of-type {margin-inline-start:auto;}
+}

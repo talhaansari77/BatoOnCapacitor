@@ -1,0 +1,131 @@
+{
+  "name": "AcademyContent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Content title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description"
+    },
+    "content_type": {
+      "type": "string",
+      "enum": [
+        "course",
+        "guide",
+        "ebook",
+        "article",
+        "research",
+        "webinar",
+        "tutorial",
+        "video"
+      ],
+      "description": "Type of educational content"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "hair_care",
+        "treatment_prep",
+        "recovery",
+        "maintenance",
+        "lifestyle",
+        "nutrition",
+        "science",
+        "testimonials"
+      ],
+      "description": "Content category"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "default": "beginner",
+      "description": "Content difficulty level"
+    },
+    "estimated_duration_minutes": {
+      "type": "number",
+      "description": "Estimated time to complete (in minutes)"
+    },
+    "points_reward": {
+      "type": "number",
+      "default": 50,
+      "description": "Points awarded upon completion"
+    },
+    "content_url": {
+      "type": "string",
+      "description": "URL to content (PDF, video, etc.)"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Thumbnail image URL"
+    },
+    "content_body": {
+      "type": "string",
+      "description": "Full content text (for articles/guides)"
+    },
+    "video_embed_url": {
+      "type": "string",
+      "description": "Embedded video URL (YouTube, Vimeo, etc.)"
+    },
+    "author": {
+      "type": "string",
+      "description": "Content author/creator"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to feature on home page"
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether content is published"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of prerequisite content"
+    },
+    "learning_objectives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What users will learn"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Content tags for search"
+    },
+    "completion_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of users who completed"
+    },
+    "average_rating": {
+      "type": "number",
+      "description": "Average user rating (1-5)"
+    },
+    "order_index": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "title",
+    "content_type",
+    "category"
+  ]
+}

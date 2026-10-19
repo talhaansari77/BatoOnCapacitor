@@ -1,0 +1,77 @@
+{
+  "name": "PointRedemption",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "redemption_type": {
+      "type": "string",
+      "enum": [
+        "service_discount",
+        "product_discount",
+        "free_session",
+        "free_product",
+        "upgrade",
+        "gift_card"
+      ],
+      "description": "Type of redemption"
+    },
+    "points_used": {
+      "type": "number",
+      "description": "Number of points used"
+    },
+    "redemption_value": {
+      "type": "number",
+      "description": "Dollar value of redemption"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "redeemed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Redemption status"
+    },
+    "description": {
+      "type": "string",
+      "description": "What was redeemed"
+    },
+    "related_invoice_id": {
+      "type": "string",
+      "description": "ID of invoice where redemption was applied"
+    },
+    "related_order_id": {
+      "type": "string",
+      "description": "ID of order where redemption was applied"
+    },
+    "approval_notes": {
+      "type": "string",
+      "description": "Notes from approver"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of admin who approved"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When redemption was approved"
+    },
+    "redeemed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When redemption was completed"
+    }
+  },
+  "required": [
+    "client_email",
+    "redemption_type",
+    "points_used",
+    "description"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "CommunityLike",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of user who liked"
+    },
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "post",
+        "comment"
+      ],
+      "description": "What was liked"
+    },
+    "target_id": {
+      "type": "string",
+      "description": "ID of post or comment"
+    }
+  },
+  "required": [
+    "user_email",
+    "target_type",
+    "target_id"
+  ]
+}

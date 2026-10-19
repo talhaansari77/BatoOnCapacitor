@@ -1,0 +1,48 @@
+import assert from "node:assert/strict";
+import {appointmentState,careAppointments,appointmentSelection,programStage,caseForProgram,latestProgramSession,instructionItems,instructionStorageKey,clientNextStep,outcomeDepartment,careMessageUrl} from "../lib/customerCare.js";
+import {appointmentBranch,CLINIC_BRANCHES} from "../lib/clinicBranches.js";
+const now=new Date("2026-10-06T10:00:00Z"), future="2026-10-07T10:00:00Z",past="2026-10-05T10:00:00Z";
+for(const status of ["requested","scheduled","confirmed"]) {
+ assert.equal(appointmentState({status,appointment_date:future},now),status);
+ assert.equal(appointmentState({status,appointment_date:past},now),"needs_review");
+}
+assert.equal(appointmentState({status:"requested",appointment_date:"bad"},now),"needs_review");
+assert.equal(appointmentState({status:"cancelled",appointment_date:future},now),"cancelled");
+assert.equal(appointmentState({status:"completed",appointment_date:past},now),"completed");
+const partition=careAppointments([{id:"late",status:"confirmed",appointment_date:"2026-10-09"},{id:"soon",status:"requested",appointment_date:future},{id:"past",status:"scheduled",appointment_date:past}],now);
+assert.deepEqual(partition.live.map(a=>a.id),["soon","late"]);
+assert.equal(partition.unresolved[0].id,"past");
+assert.equal(appointmentBranch({location:"Kuwait"}).mapsUrl,CLINIC_BRANCHES.kuwait.mapsUrl);
+assert.equal(appointmentBranch({location:"دبي"}).mapsUrl,CLINIC_BRANCHES.dubai.mapsUrl);
+assert.equal(appointmentBranch({timezone:"Asia/Kuwait"}).id,"kuwait");
+assert.equal(appointmentBranch({location:"Unknown"}),null);
+assert.equal(programStage({status:"active",total_sessions:4,sessions_used:4}),"review_due");
+assert.equal(programStage({status:"completed",total_sessions:4,sessions_used:4}),"completed");
+assert.equal(programStage({status:"expired",total_sessions:4,sessions_used:1}),"expired");
+const a={id:"a",department:"skin_care",status:"active"},b={id:"b",department:"skin_care",status:"completed"};
+assert.equal(caseForProgram([{id:"ambiguous",primary_department:"skin_care"}],a,[a,b]),null);
+assert.equal(caseForProgram([{id:"linked",package_id:"a"}],a,[a,b]).id,"linked");
+assert.equal(caseForProgram([{id:"legacy",primary_department:"skin_care"}],a,[a]).id,"legacy");
+const sessions=[{id:"wrong",package_id:"b",department:"skin_care",session_date:past},{id:"right",package_id:"a",department:"skin_care",session_date:past},{id:"unlinked",department:"skin_care",session_date:past},{id:"future",package_id:"a",session_date:future}];
+assert.equal(latestProgramSession(sessions,a,[a,b],now).id,"right");
+assert.equal(careMessageUrl("skin_care"),"/Messages?channel=skin_team");
+assert.equal(careMessageUrl("unknown"),"/Messages?channel=client_care");
+assert.equal(clientNextStep({post_consultation_state:"needs_doctor_review",recommended_next_step:"session_1"}),"doctor_review");
+assert.equal(clientNextStep({post_consultation_state:"not_suitable",recommended_next_step:"session_1"}),"message_client_care");
+assert.equal(outcomeDepartment({appointment_id:"a"},[{id:"a",department:"laser_hair_removal"}]),"laser_hair_removal");
+assert.equal(outcomeDepartment({appointment_id:"missing"},[]),null);
+assert.deepEqual(instructionItems(" - First instruction\n• Second instruction\nFirst instruction\n"),["First instruction","Second instruction"]);
+const session={id:"session",next_steps:"Care"};
+assert.notEqual(instructionStorageKey("a",session,"today"),instructionStorageKey("b",session,"today"));
+assert.notEqual(instructionStorageKey("a",session,"today"),instructionStorageKey("a",session,"tomorrow"));
+assert.notEqual(instructionStorageKey("a",session,"today"),instructionStorageKey("a",{...session,next_steps:"Updated care"},"today"));
+console.log("Customer care: appointment stages, both branch links, program boundaries, session relevance, care routing and checklist isolation passed.");
+
+const rows=[{id:"first",status:"requested",appointment_date:future},{id:"later",status:"confirmed",appointment_date:"2026-10-09T10:00:00Z"},{id:"done",status:"completed",appointment_date:past}];
+const later=appointmentSelection(rows,"later",now);
+assert.equal(later.primary.id,"later");assert.deepEqual(later.others.map(a=>a.id),["first"]);
+const done=appointmentSelection(rows,"done",now);
+assert.equal(done.primary.status,"completed");assert.equal(done.others.length,2);
+assert.equal(appointmentSelection(rows,"missing",now).missing,true);
+assert.equal(appointmentSelection(rows,null,now).primary.id,"first");
+console.log("PASS: selected appointments remain unique, earlier appointments stay visible, historical records can be opened and missing IDs are explicit.");

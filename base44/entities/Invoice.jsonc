@@ -1,0 +1,123 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Unique invoice identifier"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "paid",
+        "partially_paid",
+        "overdue",
+        "cancelled"
+      ],
+      "default": "sent",
+      "description": "Current invoice status"
+    },
+    "issue_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When the invoice was issued"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Payment due date"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Total invoice amount"
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount already paid"
+    },
+    "balance_due": {
+      "type": "number",
+      "description": "Remaining balance"
+    },
+    "linked_package_id": {
+      "type": "string",
+      "description": "ID of associated package"
+    },
+    "linked_order_id": {
+      "type": "string",
+      "description": "ID of associated product order"
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Invoice line items"
+    },
+    "discount_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Total discount applied"
+    },
+    "discount_type": {
+      "type": "string",
+      "enum": [
+        "referral_reward",
+        "loyalty_discount",
+        "promotional",
+        "special_offer"
+      ],
+      "description": "Type of discount applied"
+    },
+    "tax_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Tax amount"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes for the invoice"
+    },
+    "payment_terms": {
+      "type": "string",
+      "description": "Payment terms and conditions"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "AED",
+        "KWD",
+        "USD"
+      ],
+      "description": "Currency of this record. Never infer currency by changing the selected branch."
+    }
+  },
+  "required": [
+    "client_email",
+    "invoice_number",
+    "total_amount",
+    "issue_date",
+    "due_date"
+  ]
+}

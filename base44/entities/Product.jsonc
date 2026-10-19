@@ -1,0 +1,99 @@
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Product name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Product description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Product price"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "shampoo",
+        "supplements",
+        "serum",
+        "medication",
+        "tools",
+        "aftercare",
+        "conditioner"
+      ],
+      "description": "Product category"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Product image URL"
+    },
+    "stock_quantity": {
+      "type": "number",
+      "default": 0,
+      "description": "Available stock"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether product is available for purchase"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key product features"
+    },
+    "usage_instructions": {
+      "type": "string",
+      "description": "How to use the product"
+    },
+    "recommended_for": {
+      "type": "string",
+      "description": "Treatment types this product is recommended for"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "AED",
+        "KWD",
+        "USD"
+      ],
+      "description": "Currency of this record. Never infer currency by changing the selected branch."
+    },
+    "clinic_branch": {
+      "type": "string",
+      "enum": [
+        "dubai",
+        "kuwait"
+      ],
+      "description": "Branch holding this inventory"
+    },
+    "brand": {
+      "type": "string"
+    },
+    "size": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "source_checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_stock_quantity": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "name",
+    "price",
+    "category"
+  ]
+}

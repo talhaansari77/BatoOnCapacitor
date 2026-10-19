@@ -1,0 +1,82 @@
+{
+  "name": "QAAnswer",
+  "type": "object",
+  "properties": {
+    "question_id": {
+      "type": "string",
+      "description": "ID of the question"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email of answer author"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "content": {
+      "type": "string",
+      "description": "Answer content"
+    },
+    "is_expert_answer": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether answer is from medical expert"
+    },
+    "is_ai_generated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether answer is AI-generated"
+    },
+    "ai_confidence_score": {
+      "type": "number",
+      "description": "AI confidence in generated answer (0-100)"
+    },
+    "upvotes_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of upvotes"
+    },
+    "downvotes_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of downvotes"
+    },
+    "is_accepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is the accepted answer"
+    },
+    "helpful_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of 'helpful' votes"
+    },
+    "ai_quality_score": {
+      "type": "number",
+      "description": "AI-assessed answer quality (0-100)"
+    },
+    "points_awarded": {
+      "type": "number",
+      "default": 0,
+      "description": "Points awarded for helpful answer"
+    },
+    "verified_by_expert": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether answer verified by medical expert"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Sources cited in answer"
+    }
+  },
+  "required": [
+    "question_id",
+    "author_email",
+    "content"
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "name": "ProgressPhoto",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "journey_type": {
+      "type": "string",
+      "enum": [
+        "hair",
+        "skin",
+        "laser"
+      ],
+      "default": "hair"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Linked treatment session ID (optional)"
+    },
+    "checkpoint_name": {
+      "type": "string",
+      "enum": [
+        "Baseline",
+        "Session 1",
+        "Session 3",
+        "Session 6",
+        "Month 6 Review",
+        "Maintenance"
+      ],
+      "description": "Timeline checkpoint"
+    },
+    "angle": {
+      "type": "string",
+      "enum": [
+        "front_hairline",
+        "top_scalp",
+        "crown",
+        "left_side",
+        "right_side",
+        "close_up"
+      ],
+      "description": "Photo angle"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "URL of the photo"
+    },
+    "photo_source": {
+      "type": "string",
+      "enum": [
+        "official_bato",
+        "client_upload"
+      ],
+      "default": "client_upload",
+      "description": "Source of the photo"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "captured",
+        "awaiting_review",
+        "reviewed",
+        "shared_with_client"
+      ],
+      "default": "awaiting_review",
+      "description": "Review and sharing status"
+    },
+    "captured_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date photo was taken"
+    },
+    "captured_by": {
+      "type": "string",
+      "description": "Staff member who captured the photo"
+    },
+    "clinic_branch": {
+      "type": "string",
+      "description": "Clinic branch (Dubai / Kuwait)"
+    },
+    "lighting_protocol": {
+      "type": "string",
+      "description": "Lighting protocol used (if official)"
+    },
+    "hair_condition": {
+      "type": "string",
+      "enum": [
+        "dry",
+        "wet",
+        "styled",
+        "natural"
+      ],
+      "description": "Hair condition at time of photo"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Staff who reviewed the photo"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "client_visible": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether client can see this photo"
+    },
+    "team_note": {
+      "type": "string",
+      "description": "Internal team note \u2014 not shown to client"
+    },
+    "client_facing_note": {
+      "type": "string",
+      "description": "Note shown to client after review"
+    },
+    "client_upload_status": {
+      "type": "string",
+      "enum": [
+        "uploaded_by_client",
+        "awaiting_bato_review",
+        "approved_reference",
+        "approved_comparison",
+        "not_suitable"
+      ],
+      "default": "uploaded_by_client",
+      "description": "Staff review decision for client uploads"
+    },
+    "not_suitable_reason": {
+      "type": "string",
+      "enum": [
+        "poor_lighting",
+        "wrong_angle",
+        "wet_hair",
+        "styled_hair",
+        "too_close",
+        "too_far",
+        "blurry",
+        "different_parting",
+        "other"
+      ],
+      "description": "Internal reason why photo is not suitable for comparison"
+    }
+  },
+  "required": [
+    "client_email",
+    "journey_type",
+    "photo_url",
+    "photo_source"
+  ]
+}

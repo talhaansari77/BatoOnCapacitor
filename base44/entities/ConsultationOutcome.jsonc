@@ -1,0 +1,167 @@
+{
+  "name": "ConsultationOutcome",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "consultation_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the consultation took place"
+    },
+    "appointment_id": {
+      "type": "string",
+      "description": "Linked appointment ID"
+    },
+    "booked_service_type": {
+      "type": "string",
+      "description": "What the client booked"
+    },
+    "consultation_outcome": {
+      "type": "string",
+      "enum": [
+        "blood_test_done",
+        "blood_test_booked",
+        "session_1_done",
+        "session_1_booked",
+        "plan_presented_pending",
+        "follow_up_needed",
+        "not_interested",
+        "not_suitable",
+        "needs_doctor_review",
+        "other"
+      ],
+      "description": "What happened at the consultation"
+    },
+    "recommended_next_step": {
+      "type": "string",
+      "enum": [
+        "blood_test_panels",
+        "session_1",
+        "follow_up_consultation",
+        "doctor_review",
+        "message_client_care",
+        "no_action_needed"
+      ],
+      "description": "Recommended next step for the client"
+    },
+    "recommendation_reason": {
+      "type": "string",
+      "description": "Why this next step is recommended"
+    },
+    "client_objection": {
+      "type": "string",
+      "description": "Any objection or hesitation the client expressed \u2014 staff only"
+    },
+    "follow_up_priority": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium",
+      "description": "Priority for follow-up \u2014 staff only"
+    },
+    "staff_note": {
+      "type": "string",
+      "description": "Internal staff note \u2014 not shown to client"
+    },
+    "assigned_follow_up_owner": {
+      "type": "string",
+      "description": "Staff email assigned to follow up \u2014 staff only"
+    },
+    "conversion_status": {
+      "type": "string",
+      "enum": [
+        "converted_blood_test",
+        "converted_session_1",
+        "pending_decision",
+        "follow_up_needed",
+        "needs_doctor_review",
+        "not_interested",
+        "not_suitable"
+      ],
+      "description": "Client conversion state \u2014 internal"
+    },
+    "post_consultation_state": {
+      "type": "string",
+      "enum": [
+        "converted_blood_test",
+        "converted_session_1",
+        "pending_decision",
+        "follow_up_needed",
+        "needs_doctor_review",
+        "not_interested",
+        "not_suitable"
+      ],
+      "description": "Client-facing state key"
+    },
+    "blood_test_status": {
+      "type": "string",
+      "enum": [
+        "not_applicable",
+        "not_booked",
+        "booked",
+        "completed"
+      ],
+      "default": "not_applicable"
+    },
+    "session_1_status": {
+      "type": "string",
+      "enum": [
+        "not_applicable",
+        "not_booked",
+        "booked",
+        "completed"
+      ],
+      "default": "not_applicable"
+    },
+    "recovery_status": {
+      "type": "string",
+      "enum": [
+        "not_needed",
+        "needed",
+        "contacted",
+        "recovered",
+        "closed"
+      ],
+      "default": "not_needed"
+    },
+    "journey_activation_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "health_review_started",
+        "treatment_started",
+        "pending_next_step"
+      ],
+      "default": "not_started"
+    },
+    "last_follow_up_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recovery_closed": {
+      "type": "boolean",
+      "default": false
+    },
+    "recovery_closed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recovery_notes": {
+      "type": "string",
+      "description": "Staff notes on recovery actions taken \u2014 staff only"
+    },
+    "next_step_viewed_by_client": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "client_email"
+  ]
+}

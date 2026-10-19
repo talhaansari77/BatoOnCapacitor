@@ -1,0 +1,102 @@
+{
+  "name": "QAQuestion",
+  "type": "object",
+  "properties": {
+    "author_email": {
+      "type": "string",
+      "description": "Email of question author"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "title": {
+      "type": "string",
+      "description": "Question title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Question content"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "treatment",
+        "recovery",
+        "side_effects",
+        "results",
+        "cost",
+        "general"
+      ],
+      "description": "Question category"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Question tags"
+    },
+    "group_id": {
+      "type": "string",
+      "description": "Associated group ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "answered",
+        "expert_answered",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Question status"
+    },
+    "views_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of views"
+    },
+    "upvotes_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of upvotes"
+    },
+    "answers_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of answers"
+    },
+    "accepted_answer_id": {
+      "type": "string",
+      "description": "ID of accepted answer"
+    },
+    "ai_quality_score": {
+      "type": "number",
+      "description": "AI-assessed question quality (0-100)"
+    },
+    "ai_suggested_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI-suggested related topics"
+    },
+    "points_awarded": {
+      "type": "number",
+      "default": 0,
+      "description": "Points awarded for insightful question"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether question is featured"
+    }
+  },
+  "required": [
+    "author_email",
+    "title",
+    "content",
+    "category"
+  ]
+}

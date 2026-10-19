@@ -1,0 +1,198 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Unique order number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Order status"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Total order amount"
+    },
+    "shipping_address": {
+      "type": "string",
+      "description": "Shipping address"
+    },
+    "shipping_city": {
+      "type": "string",
+      "description": "City"
+    },
+    "shipping_zip": {
+      "type": "string",
+      "description": "ZIP code"
+    },
+    "shipping_country": {
+      "type": "string",
+      "description": "Country"
+    },
+    "tracking_number": {
+      "type": "string",
+      "description": "Shipping tracking number"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "credit_card",
+        "paypal",
+        "bank_transfer"
+      ],
+      "description": "Payment method used"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Order notes or special instructions"
+    },
+    "shipped_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When order was shipped"
+    },
+    "delivered_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When order was delivered"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "AED",
+        "KWD",
+        "USD"
+      ],
+      "description": "Currency of this record. Never infer currency by changing the selected branch."
+    },
+    "checkout_key": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "description": "ID of the order"
+          },
+          "product_id": {
+            "type": "string",
+            "description": "ID of the product"
+          },
+          "product_name": {
+            "type": "string",
+            "description": "Product name (snapshot at purchase time)"
+          },
+          "product_price": {
+            "type": "number",
+            "description": "Product price at purchase time"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity ordered"
+          },
+          "subtotal": {
+            "type": "number",
+            "description": "Item subtotal (price \u00d7 quantity)"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "AED",
+              "KWD",
+              "USD"
+            ],
+            "description": "Currency of this record. Never infer currency by changing the selected branch."
+          },
+          "source_currency": {
+            "type": "string",
+            "enum": [
+              "AED",
+              "KWD",
+              "USD"
+            ]
+          },
+          "source_price": {
+            "type": "number"
+          },
+          "conversion_rate": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "unpaid",
+        "paid",
+        "refunded"
+      ],
+      "default": "unpaid"
+    },
+    "clinic_branch": {
+      "type": "string",
+      "enum": [
+        "dubai",
+        "kuwait"
+      ]
+    },
+    "exchange_rate_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "inventory_status": {
+      "type": "string",
+      "enum": [
+        "not_reserved",
+        "deducted"
+      ],
+      "description": "Unpaid requests do not reserve stock. Deduct stock when the shop confirms fulfillment."
+    },
+    "fulfillment_method": {
+      "type": "string",
+      "enum": [
+        "delivery",
+        "pickup"
+      ]
+    },
+    "delivery_quote_status": {
+      "type": "string",
+      "enum": [
+        "awaiting_confirmation",
+        "confirmed"
+      ]
+    },
+    "delivery_fee": {
+      "type": "number",
+      "description": "Shop-confirmed delivery fee in the order currency; absent means not quoted."
+    },
+    "delivery_estimate": {
+      "type": "string",
+      "description": "Shop-confirmed delivery or pickup timing"
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "client_email",
+    "total_amount"
+  ]
+}

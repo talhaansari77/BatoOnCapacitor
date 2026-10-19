@@ -1,0 +1,103 @@
+{
+  "name": "TreatmentGoal",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "goal_title": {
+      "type": "string",
+      "description": "Title of the goal"
+    },
+    "goal_description": {
+      "type": "string",
+      "description": "Detailed description of what client wants to achieve"
+    },
+    "goal_type": {
+      "type": "string",
+      "enum": [
+        "hair_density",
+        "hair_thickness",
+        "hairline_restoration",
+        "coverage",
+        "texture_improvement",
+        "confidence",
+        "overall_appearance",
+        "custom"
+      ],
+      "description": "Type of goal"
+    },
+    "target_metric": {
+      "type": "number",
+      "description": "Numerical target if applicable (e.g., % improvement)"
+    },
+    "current_progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Current progress towards goal (0-100%)"
+    },
+    "target_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Target completion date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "achieved",
+        "on_track",
+        "needs_attention",
+        "paused"
+      ],
+      "default": "active",
+      "description": "Current status"
+    },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "target_date": {
+            "type": "string"
+          },
+          "achieved": {
+            "type": "boolean"
+          },
+          "achieved_date": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Milestones along the way"
+    },
+    "motivational_notes": {
+      "type": "string",
+      "description": "Personal motivational notes"
+    },
+    "ai_predicted_completion": {
+      "type": "string",
+      "format": "date",
+      "description": "AI predicted completion date based on progress"
+    },
+    "next_predicted_improvement": {
+      "type": "string",
+      "format": "date",
+      "description": "When client is likely to see next noticeable improvement"
+    },
+    "celebration_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether achievement celebration was sent"
+    }
+  },
+  "required": [
+    "client_email",
+    "goal_title",
+    "goal_type"
+  ]
+}

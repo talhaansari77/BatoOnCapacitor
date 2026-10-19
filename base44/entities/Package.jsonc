@@ -1,0 +1,156 @@
+{
+  "name": "Package",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "package_name": {
+      "type": "string",
+      "description": "Name of the package"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "hair_restoration",
+        "laser_hair_removal",
+        "skin_care",
+        "injections",
+        "general_health",
+        "multi_department"
+      ],
+      "description": "Department this package belongs to"
+    },
+    "total_sessions": {
+      "type": "number",
+      "description": "Total number of sessions in the package"
+    },
+    "sessions_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of sessions already used"
+    },
+    "package_type": {
+      "type": "string",
+      "enum": [
+        "medical_consultation",
+        "follow_up_consultation",
+        "blood_test_panel",
+        "hormone_panel",
+        "vitamin_mineral_panel",
+        "iron_ferritin_panel",
+        "liver_function_panel",
+        "kidney_function_panel",
+        "crp_inflammation_marker",
+        "urine_test",
+        "diagnostic_panel",
+        "iron_drip",
+        "ferinject",
+        "glutathione_drip",
+        "glutathione_drip_course_of_4",
+        "iv_therapy",
+        "hair_assessment",
+        "scalp_assessment",
+        "hair_loss_evaluation",
+        "full_head_hair_program",
+        "full_head_hair_program_plus",
+        "targeted_hair_program",
+        "targeted_hair_program_plus",
+        "renew_full_head",
+        "renew_targeted",
+        "prp_hair",
+        "plasma_hair_support",
+        "hair_follow_up",
+        "hair_care_session",
+        "hair_wash",
+        "skin_consultation",
+        "skin_assessment",
+        "hydrafacial",
+        "hydrafacial_dermapen",
+        "dermapen",
+        "rf_microneedling",
+        "rf_skin_treatment",
+        "green_peel_face",
+        "green_peel_back",
+        "cosmelan_program",
+        "salicylic_peel",
+        "rf_double_chin",
+        "meso_double_chin",
+        "botox_forehead_eyes",
+        "botox_underarms",
+        "botox_neck",
+        "botox_jawline",
+        "skin_booster",
+        "profhilo",
+        "salmon_dna",
+        "mesotherapy",
+        "filler_dissolve",
+        "teosyal_kiss_lips",
+        "juvederm_ultra_lips",
+        "laser_full_body",
+        "laser_full_body_student_rate",
+        "laser_full_body_custom",
+        "laser_targeted_area",
+        "laser_half_back",
+        "tattoo_removal_session",
+        "lip_tawreed",
+        "lip_tawreed_retouch",
+        "microblading_brows",
+        "microblading_retouch",
+        "eyeliner_pigment",
+        "eyeliner_retouch"
+      ],
+      "description": "Type of treatment package"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "expired",
+        "cancelled"
+      ],
+      "default": "active",
+      "description": "Current status of the package"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When the package started"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When the package expires"
+    },
+    "next_recommended_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Recommended date for next session"
+    },
+    "price": {
+      "type": "number",
+      "description": "Total package price"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the package"
+    },
+    "maintenance_plan": {
+      "type": "string",
+      "description": "Client-facing maintenance plan agreed with the clinic after program review; leave empty until recorded"
+    },
+    "maintenance_review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Recommended maintenance review date, not a confirmed appointment"
+    }
+  },
+  "required": [
+    "client_email",
+    "package_name",
+    "department",
+    "total_sessions"
+  ]
+}

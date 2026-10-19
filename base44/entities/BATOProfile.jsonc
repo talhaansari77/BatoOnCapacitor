@@ -1,0 +1,244 @@
+{
+  "name": "BATOProfile",
+  "type": "object",
+  "properties": {
+    "appearance_pending": {
+      "type": "boolean",
+      "default": false
+    },
+    "appearance_pending_data": {
+      "type": "object",
+      "description": "Saved final onboarding answers until appearance selection is completed"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "onboarding_path": {
+      "type": "string",
+      "enum": [
+        "booked_client",
+        "explorer"
+      ],
+      "description": "Which onboarding path was chosen"
+    },
+    "user_status": {
+      "type": "string",
+      "enum": [
+        "booked",
+        "explorer",
+        "active_client"
+      ],
+      "default": "explorer"
+    },
+    "current_step": {
+      "type": "number",
+      "default": 0
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "consent_acknowledged": {
+      "type": "boolean",
+      "default": false
+    },
+    "booked_service_type": {
+      "type": "string"
+    },
+    "additional_concerns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "appointment_confirmed": {
+      "type": "boolean"
+    },
+    "main_concern": {
+      "type": "string"
+    },
+    "biggest_worry": {
+      "type": "string"
+    },
+    "visit_specific_answers": {
+      "type": "object"
+    },
+    "has_allergies": {
+      "type": "boolean"
+    },
+    "allergies_detail": {
+      "type": "string"
+    },
+    "has_medications": {
+      "type": "boolean"
+    },
+    "medications_detail": {
+      "type": "string"
+    },
+    "has_supplements": {
+      "type": "boolean"
+    },
+    "supplements_detail": {
+      "type": "string"
+    },
+    "has_medical_conditions": {
+      "type": "boolean"
+    },
+    "medical_conditions_detail": {
+      "type": "string"
+    },
+    "had_recent_surgery": {
+      "type": "boolean"
+    },
+    "had_bad_reaction": {
+      "type": "boolean"
+    },
+    "bad_reaction_detail": {
+      "type": "string"
+    },
+    "is_pregnant_or_breastfeeding": {
+      "type": "boolean"
+    },
+    "known_deficiencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "previous_treatments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "previous_experience_result": {
+      "type": "string"
+    },
+    "previous_experience_notes": {
+      "type": "string"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "desired_result": {
+      "type": "string"
+    },
+    "fears_and_concerns": {
+      "type": "string"
+    },
+    "referral_source": {
+      "type": "string"
+    },
+    "referral_influencer": {
+      "type": "string"
+    },
+    "referral_person": {
+      "type": "string"
+    },
+    "uploaded_photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "uploaded_documents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "explorer_interests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "explorer_assessment": {
+      "type": "object"
+    },
+    "explorer_recommended_start": {
+      "type": "string"
+    },
+    "explorer_preferred_branch": {
+      "type": "string"
+    },
+    "explorer_contact_name": {
+      "type": "string"
+    },
+    "explorer_contact_phone": {
+      "type": "string"
+    },
+    "staff_summary": {
+      "type": "string",
+      "description": "Private staff-facing pre-visit summary"
+    },
+    "visit_prep_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether client has read visit preparation instructions"
+    },
+    "client_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions the client wants to ask during their visit"
+    },
+    "readiness_status": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "almost_ready",
+        "needs_attention",
+        "no_appointment"
+      ],
+      "description": "Computed readiness status"
+    },
+    "staff_review_needed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag for staff to review before appointment"
+    },
+    "pre_visit_briefing_reviewed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether staff has reviewed the pre-visit briefing"
+    },
+    "briefing_reviewed_by": {
+      "type": "string",
+      "description": "Staff member who reviewed the briefing"
+    },
+    "briefing_reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the briefing was reviewed"
+    },
+    "staff_notes_clinical": {
+      "type": "string",
+      "description": "Internal clinical/safety notes \u2014 staff only"
+    },
+    "staff_notes_trust": {
+      "type": "string",
+      "description": "Internal consultation/trust notes \u2014 staff only"
+    },
+    "staff_notes_opportunity": {
+      "type": "string",
+      "description": "Internal opportunity notes \u2014 staff only"
+    }
+  },
+  "required": [
+    "client_email"
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "appointment_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time of the appointment"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "hair_restoration",
+        "laser_hair_removal",
+        "skin_care",
+        "injections",
+        "general_health",
+        "general_consultation"
+      ],
+      "description": "Department for this appointment"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "consultation",
+        "treatment",
+        "follow_up",
+        "photo_session",
+        "check_up"
+      ],
+      "description": "Type of appointment"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "rescheduled",
+        "requested"
+      ],
+      "default": "scheduled",
+      "description": "Current status of the appointment"
+    },
+    "specialist_name": {
+      "type": "string",
+      "description": "Name of the specialist"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or instructions"
+    },
+    "location": {
+      "type": "string",
+      "description": "Clinic location"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether reminder has been sent"
+    },
+    "reminder_sent_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the reminder was sent"
+    },
+    "pre_appointment_instructions": {
+      "type": "string",
+      "description": "Special instructions for the client before appointment"
+    },
+    "send_reminder": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to send automated reminder"
+    },
+    "timezone": {
+      "type": "string",
+      "enum": [
+        "Asia/Dubai",
+        "Asia/Kuwait"
+      ]
+    },
+    "service_name": {
+      "type": "string",
+      "description": "Requested service or package name; does not imply treatment approval"
+    },
+    "package_id": {
+      "type": "string",
+      "description": "Existing package associated with the request"
+    }
+  },
+  "required": [
+    "client_email",
+    "appointment_date",
+    "type"
+  ]
+}

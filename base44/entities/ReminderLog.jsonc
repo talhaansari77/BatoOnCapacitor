@@ -1,0 +1,63 @@
+{
+  "name": "ReminderLog",
+  "type": "object",
+  "properties": {
+    "appointment_id": {
+      "type": "string",
+      "description": "ID of the appointment"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "reminder_type": {
+      "type": "string",
+      "enum": [
+        "automated_48h",
+        "automated_24h",
+        "automated_3h",
+        "automated_1h",
+        "custom_doctor"
+      ],
+      "description": "Type of reminder sent"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms",
+        "whatsapp",
+        "in_app"
+      ],
+      "default": "email",
+      "description": "Communication channel used"
+    },
+    "sent_successfully": {
+      "type": "boolean",
+      "description": "Whether the reminder was sent successfully"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error message if sending failed"
+    },
+    "message_content": {
+      "type": "string",
+      "description": "Content of the reminder message"
+    },
+    "sent_by": {
+      "type": "string",
+      "description": "Email of the person who sent the reminder (for custom reminders)"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the reminder was scheduled to be sent"
+    }
+  },
+  "required": [
+    "appointment_id",
+    "client_email",
+    "reminder_type",
+    "channel"
+  ]
+}

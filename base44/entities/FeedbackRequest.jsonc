@@ -1,0 +1,55 @@
+{
+  "name": "FeedbackRequest",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "appointment_id": {
+      "type": "string",
+      "description": "ID of the related appointment"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "ID of the related treatment session"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "appointment",
+        "treatment_session"
+      ],
+      "description": "Type of feedback request"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "expired"
+      ],
+      "default": "pending",
+      "description": "Status of the feedback request"
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the feedback request was sent"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the feedback was submitted"
+    },
+    "expires_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the feedback request expires"
+    }
+  },
+  "required": [
+    "client_email",
+    "type"
+  ]
+}

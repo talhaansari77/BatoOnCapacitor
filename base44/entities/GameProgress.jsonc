@@ -1,0 +1,56 @@
+{
+  "name": "GameProgress",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "total_points": {
+      "type": "number",
+      "default": 0,
+      "description": "Total points earned"
+    },
+    "level": {
+      "type": "number",
+      "default": 1,
+      "description": "Current level"
+    },
+    "badges_earned": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of badge IDs earned"
+    },
+    "current_streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Current streak of consecutive actions"
+    },
+    "longest_streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Longest streak achieved"
+    },
+    "achievements_unlocked": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Array of achievement objects with unlock dates"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to show on public leaderboard"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Public display name for leaderboard"
+    }
+  },
+  "required": [
+    "client_email"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "name": "LeadActivity",
+  "type": "object",
+  "properties": {
+    "lead_id": {
+      "type": "string",
+      "description": "ID of the lead"
+    },
+    "lead_email": {
+      "type": "string",
+      "description": "Email of the lead"
+    },
+    "activity_type": {
+      "type": "string",
+      "enum": [
+        "call",
+        "email",
+        "meeting",
+        "note",
+        "stage_change",
+        "follow_up",
+        "consultation",
+        "proposal_sent"
+      ],
+      "description": "Type of activity"
+    },
+    "description": {
+      "type": "string",
+      "description": "Activity description"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "neutral",
+        "negative",
+        "no_response"
+      ],
+      "description": "Outcome of the activity"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Email of user who performed activity"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Duration in minutes"
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Recommended next action"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When activity is scheduled for"
+    }
+  },
+  "required": [
+    "lead_id",
+    "lead_email",
+    "activity_type",
+    "description"
+  ]
+}

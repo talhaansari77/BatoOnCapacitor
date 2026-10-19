@@ -1,0 +1,47 @@
+{
+  "name": "GroupMembership",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "ID of the group"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the member"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "member",
+        "moderator",
+        "admin"
+      ],
+      "default": "member",
+      "description": "Role in the group"
+    },
+    "join_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When user joined"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "banned"
+      ],
+      "default": "active",
+      "description": "Membership status"
+    },
+    "notification_settings": {
+      "type": "object",
+      "description": "User's notification preferences for this group"
+    }
+  },
+  "required": [
+    "group_id",
+    "user_email"
+  ]
+}

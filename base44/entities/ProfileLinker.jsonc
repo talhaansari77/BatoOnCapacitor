@@ -1,0 +1,88 @@
+{
+  "name": "ProfileLinker",
+  "type": "object",
+  "properties": {
+    "auth_email": {
+      "type": "string",
+      "description": "Email from Base44 auth (the logged-in user)"
+    },
+    "connected_phone": {
+      "type": "string",
+      "description": "Phone number submitted by user for matching"
+    },
+    "phone_country_code": {
+      "type": "string",
+      "description": "Country code selected by user"
+    },
+    "profile_link_status": {
+      "type": "string",
+      "enum": [
+        "matched",
+        "pending_confirmation",
+        "duplicate_possible",
+        "new_profile"
+      ],
+      "default": "new_profile",
+      "description": "Result of the matching attempt"
+    },
+    "linked_profile_id": {
+      "type": "string",
+      "description": "BATOProfile ID that was matched and linked"
+    },
+    "linked_appointment_id": {
+      "type": "string",
+      "description": "Appointment ID that was matched"
+    },
+    "linked_casefile_id": {
+      "type": "string",
+      "description": "CaseFile ID that was matched"
+    },
+    "matched_by": {
+      "type": "string",
+      "enum": [
+        "email",
+        "phone",
+        "staff_manual",
+        "none"
+      ],
+      "description": "How the match was made"
+    },
+    "possible_appointment_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of possible appointment IDs when multiple matches found"
+    },
+    "last_match_attempt_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "staff_action": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "linked_to_profile",
+        "marked_as_explorer",
+        "contacted_client"
+      ],
+      "default": "pending",
+      "description": "Staff action taken on pending records"
+    },
+    "staff_note": {
+      "type": "string",
+      "description": "Internal staff note on this linking record"
+    },
+    "staff_resolved_by": {
+      "type": "string",
+      "description": "Email of staff who resolved this"
+    },
+    "staff_resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "auth_email"
+  ]
+}

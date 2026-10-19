@@ -1,0 +1,59 @@
+{
+  "name": "FAQ",
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "The FAQ question"
+    },
+    "answer": {
+      "type": "string",
+      "description": "The FAQ answer"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "general",
+        "treatment",
+        "recovery",
+        "payment",
+        "appointments",
+        "products",
+        "results"
+      ],
+      "description": "FAQ category"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for better searchability"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to feature this FAQ"
+    },
+    "view_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times viewed"
+    },
+    "helpful_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of helpful votes"
+    },
+    "order_index": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "question",
+    "answer",
+    "category"
+  ]
+}

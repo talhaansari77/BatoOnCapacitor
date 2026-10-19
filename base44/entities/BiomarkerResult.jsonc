@@ -1,0 +1,108 @@
+{
+  "name": "BiomarkerResult",
+  "type": "object",
+  "properties": {
+    "archived_duplicate": {
+      "type": "boolean",
+      "default": false,
+      "description": "Reversibly archived duplicate import; original values are retained"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "test_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the blood test was taken"
+    },
+    "marker_name": {
+      "type": "string",
+      "description": "Name of the biomarker (e.g., Ferritin, Vitamin D, Iron)"
+    },
+    "current_value": {
+      "type": "number",
+      "description": "Client's current result value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement (e.g., ng/mL, ug/dL)"
+    },
+    "marker_direction": {
+      "type": "string",
+      "enum": [
+        "higher_until_limit",
+        "lower_is_better",
+        "middle_range"
+      ],
+      "description": "Whether higher, lower, or middle is better for this marker"
+    },
+    "general_health_min": {
+      "type": "number",
+      "description": "General health reference range minimum"
+    },
+    "general_health_max": {
+      "type": "number",
+      "description": "General health reference range maximum"
+    },
+    "bato_target_min": {
+      "type": "number",
+      "description": "BATO aesthetic/optimal target range minimum"
+    },
+    "bato_target_max": {
+      "type": "number",
+      "description": "BATO aesthetic/optimal target range maximum"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "hair_support",
+        "skin_recovery",
+        "energy_wellness",
+        "medical_review"
+      ],
+      "description": "Primary category for grouping"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "reviewed_by_bato",
+        "reviewed_by_doctor",
+        "updated"
+      ],
+      "default": "pending_review",
+      "description": "Staff review approval status"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Email of staff member who reviewed"
+    },
+    "reviewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the result was reviewed"
+    },
+    "staff_interpretation": {
+      "type": "string",
+      "description": "Brief interpretation for client (only shown after review)"
+    },
+    "staff_note": {
+      "type": "string",
+      "description": "Internal staff note (not shown to client)"
+    },
+    "is_priority": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag if this needs immediate attention"
+    }
+  },
+  "required": [
+    "client_email",
+    "test_date",
+    "marker_name",
+    "current_value",
+    "unit",
+    "marker_direction"
+  ]
+}

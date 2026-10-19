@@ -1,0 +1,114 @@
+{
+  "name": "ConversionMetrics",
+  "type": "object",
+  "properties": {
+    "metric_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date for these metrics"
+    },
+    "total_leads": {
+      "type": "number",
+      "default": 0,
+      "description": "Total leads for the period"
+    },
+    "leads_to_consultation": {
+      "type": "number",
+      "default": 0,
+      "description": "Leads who booked consultation"
+    },
+    "consultations_to_procedure": {
+      "type": "number",
+      "default": 0,
+      "description": "Consultations that became procedures"
+    },
+    "lead_to_consultation_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentage conversion rate"
+    },
+    "consultation_to_procedure_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentage conversion rate"
+    },
+    "avg_conversion_time_hours": {
+      "type": "number",
+      "default": 0,
+      "description": "Average hours from lead to booking"
+    },
+    "email_sent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total emails sent"
+    },
+    "email_opened": {
+      "type": "number",
+      "default": 0,
+      "description": "Emails opened"
+    },
+    "email_clicked": {
+      "type": "number",
+      "default": 0,
+      "description": "Emails clicked"
+    },
+    "email_open_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Email open rate percentage"
+    },
+    "email_click_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Email click rate percentage"
+    },
+    "sms_sent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total SMS sent"
+    },
+    "sms_responded": {
+      "type": "number",
+      "default": 0,
+      "description": "SMS responses received"
+    },
+    "phone_calls_made": {
+      "type": "number",
+      "default": 0,
+      "description": "Phone calls made"
+    },
+    "phone_calls_answered": {
+      "type": "number",
+      "default": 0,
+      "description": "Calls answered"
+    },
+    "offer_500_conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversions from $500 OFF offer"
+    },
+    "offer_referral_conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversions from referral special"
+    },
+    "offer_seasonal_conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversions from seasonal offer"
+    },
+    "offer_financing_conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversions from financing offer"
+    },
+    "offer_bundle_conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversions from bundle offer"
+    }
+  },
+  "required": [
+    "metric_date"
+  ]
+}

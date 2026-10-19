@@ -1,0 +1,7 @@
+import React from 'react';
+import {Link,useSearchParams} from 'react-router-dom';
+import {useCustomerAccount} from '@/hooks/useCustomerAccount';
+import CustomerLoadState from '@/components/CustomerLoadState';
+import CustomerCareHub from '@/components/care/CustomerCareHub';
+import {useLocation} from '@/components/LocationContext';
+export default function TreatmentPlan(){const account=useCustomerAccount();const {t,isRTL}=useLocation();const [params]=useSearchParams();if(account.isError)return <CustomerLoadState error onRetry={()=>account.refetch()}/>;if(!account.data)return <CustomerLoadState/>;return <div className="max-w-2xl mx-auto p-4 space-y-4" dir={isRTL?'rtl':'ltr'}><h1 className="text-xl font-bold text-[#3a2e1e]">{t('Your care programs','برامج رعايتك')}</h1><CustomerCareHub user={account.data} programId={params.get('program')||undefined} fallback={<section className="rounded-2xl bg-white p-5 space-y-3"><h2 className="font-semibold">{t('No care program is recorded yet','لم يُسجل برنامج رعاية بعد')}</h2><p className="text-sm">{t('Explore a journey to understand your options and the right first step.','استكشف إحدى الرحلات لفهم خياراتك والخطوة الأولى المناسبة.')}</p><div className="flex flex-wrap gap-3">{[['HairJourney',t('Hair','الشعر')],['SkinJourney',t('Skin','البشرة')],['HealthJourney',t('Health','الصحة')],['LaserJourney',t('Laser','الليزر')],['AestheticCare',t('Aesthetic Care','العناية التجميلية')]].map(([route,name])=><Link key={route} className="underline p-2" to={'/'+route}>{name}</Link>)}</div></section>}/></div>;}

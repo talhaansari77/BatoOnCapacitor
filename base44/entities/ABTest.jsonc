@@ -1,0 +1,116 @@
+{
+  "name": "ABTest",
+  "type": "object",
+  "properties": {
+    "test_name": {
+      "type": "string",
+      "description": "Name of the A/B test"
+    },
+    "test_type": {
+      "type": "string",
+      "enum": [
+        "email_subject",
+        "email_content",
+        "offer_type",
+        "timing",
+        "channel",
+        "landing_page"
+      ],
+      "description": "Type of test being run"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "running",
+        "paused",
+        "completed"
+      ],
+      "default": "draft",
+      "description": "Current test status"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When test started"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When test ended"
+    },
+    "variant_a_name": {
+      "type": "string",
+      "description": "Name of variant A (control)"
+    },
+    "variant_a_description": {
+      "type": "string",
+      "description": "Description of variant A"
+    },
+    "variant_a_leads": {
+      "type": "number",
+      "default": 0,
+      "description": "Leads assigned to variant A"
+    },
+    "variant_a_conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversions from variant A"
+    },
+    "variant_a_conversion_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversion rate for variant A"
+    },
+    "variant_b_name": {
+      "type": "string",
+      "description": "Name of variant B (test)"
+    },
+    "variant_b_description": {
+      "type": "string",
+      "description": "Description of variant B"
+    },
+    "variant_b_leads": {
+      "type": "number",
+      "default": 0,
+      "description": "Leads assigned to variant B"
+    },
+    "variant_b_conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversions from variant B"
+    },
+    "variant_b_conversion_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Conversion rate for variant B"
+    },
+    "winner": {
+      "type": "string",
+      "enum": [
+        "variant_a",
+        "variant_b",
+        "inconclusive"
+      ],
+      "description": "Which variant won the test"
+    },
+    "confidence_level": {
+      "type": "number",
+      "description": "Statistical confidence level"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Test notes and conclusions"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of who created the test"
+    }
+  },
+  "required": [
+    "test_name",
+    "test_type",
+    "variant_a_name",
+    "variant_b_name"
+  ]
+}

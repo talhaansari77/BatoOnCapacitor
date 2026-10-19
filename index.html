@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/bato-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+    <title>BATO Clinic</title>
+    <script>
+      // Resolve appearance before the app paints, including when storage is blocked.
+      (function () {
+        var style = 'atelier';
+        try { style = localStorage.getItem('bato_style') || 'atelier'; } catch (_) {}
+        document.documentElement.dataset.batoStyle = ['atelier','prism','contour'].includes(style) ? style : 'atelier';
+        var choice = 'system';
+        try { choice = localStorage.getItem('bato_theme') || 'system'; } catch (_) {}
+        if (!['system', 'light', 'dark'].includes(choice)) {
+          choice = 'system';
+          try { localStorage.removeItem('bato_theme'); } catch (_) {}
+        }
+        var dark = choice === 'dark' || (choice === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.add(dark ? 'dark' : 'light');
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      })();
+    </script>
+
+    <script>
+      // Unregister any service workers that may be caching old bundles
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+      // Clear all caches
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+{
+  "name": "CommunityGroup",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Group name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Group description"
+    },
+    "group_type": {
+      "type": "string",
+      "enum": [
+        "treatment_specific",
+        "concern_based",
+        "support",
+        "general",
+        "milestone",
+        "location"
+      ],
+      "description": "Type of group"
+    },
+    "treatment_category": {
+      "type": "string",
+      "enum": [
+        "fue",
+        "dhi",
+        "prp",
+        "medication",
+        "laser",
+        "all"
+      ],
+      "description": "Associated treatment type"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "Group cover image URL"
+    },
+    "member_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of members"
+    },
+    "post_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of posts"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of group creator"
+    },
+    "moderators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of moderator emails"
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether group requires approval to join"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Group rules"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Group tags"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether group is active"
+    },
+    "ai_topic_clusters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI-detected topic clusters in this group"
+    },
+    "avg_sentiment_score": {
+      "type": "number",
+      "description": "Average sentiment score (0-100)"
+    }
+  },
+  "required": [
+    "name",
+    "group_type",
+    "created_by"
+  ]
+}

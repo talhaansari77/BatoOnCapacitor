@@ -1,0 +1,57 @@
+{
+  "name": "CommunityComment",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string",
+      "description": "ID of the post"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email of comment author"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name of author"
+    },
+    "content": {
+      "type": "string",
+      "description": "Comment content"
+    },
+    "is_anonymous": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether comment is anonymous"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "flagged"
+      ],
+      "default": "approved",
+      "description": "Moderation status"
+    },
+    "parent_comment_id": {
+      "type": "string",
+      "description": "ID of parent comment (for nested replies)"
+    },
+    "likes_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of likes"
+    },
+    "is_by_staff": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether comment is by staff/doctor"
+    }
+  },
+  "required": [
+    "post_id",
+    "author_email",
+    "content"
+  ]
+}

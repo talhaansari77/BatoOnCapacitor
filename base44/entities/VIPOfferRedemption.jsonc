@@ -1,0 +1,61 @@
+{
+  "name": "VIPOfferRedemption",
+  "type": "object",
+  "properties": {
+    "offer_id": {
+      "type": "string",
+      "description": "ID of the VIP offer"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "claimed",
+        "pending_use",
+        "redeemed",
+        "expired",
+        "cancelled"
+      ],
+      "default": "claimed",
+      "description": "Redemption status"
+    },
+    "claimed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When offer was claimed"
+    },
+    "redeemed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When offer was actually used"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this redemption expires"
+    },
+    "redemption_code": {
+      "type": "string",
+      "description": "Unique code for redeeming the offer"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about redemption"
+    },
+    "applied_to_invoice": {
+      "type": "string",
+      "description": "Invoice ID where offer was applied"
+    },
+    "applied_to_appointment": {
+      "type": "string",
+      "description": "Appointment ID where offer was applied"
+    }
+  },
+  "required": [
+    "offer_id",
+    "client_email"
+  ]
+}

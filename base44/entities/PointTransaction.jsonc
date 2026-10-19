@@ -1,0 +1,97 @@
+{
+  "name": "PointTransaction",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "earned",
+        "redeemed",
+        "expired",
+        "adjusted"
+      ],
+      "description": "Type of transaction"
+    },
+    "points_amount": {
+      "type": "number",
+      "description": "Number of points (positive for earned, negative for redeemed)"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "treatment_session",
+        "product_purchase",
+        "referral_completed",
+        "appointment_kept",
+        "feedback_submitted",
+        "review_posted",
+        "academy_completed",
+        "package_renewal",
+        "social_share",
+        "birthday_bonus",
+        "anniversary_bonus",
+        "tier_bonus",
+        "redemption_discount",
+        "redemption_product",
+        "redemption_service",
+        "manual_adjustment",
+        "expired"
+      ],
+      "description": "Reason for point transaction"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of transaction"
+    },
+    "related_id": {
+      "type": "string",
+      "description": "ID of related entity (session, order, etc.)"
+    },
+    "related_type": {
+      "type": "string",
+      "enum": [
+        "session",
+        "order",
+        "referral",
+        "appointment",
+        "academy",
+        "manual"
+      ],
+      "description": "Type of related entity"
+    },
+    "balance_after": {
+      "type": "number",
+      "description": "Point balance after this transaction"
+    },
+    "tier_after": {
+      "type": "string",
+      "enum": [
+        "bronze",
+        "silver",
+        "gold",
+        "platinum",
+        "diamond"
+      ],
+      "description": "Loyalty tier after this transaction"
+    },
+    "processed_by": {
+      "type": "string",
+      "description": "Email of admin who processed (for manual adjustments)"
+    },
+    "expires_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When these points expire (if applicable)"
+    }
+  },
+  "required": [
+    "client_email",
+    "transaction_type",
+    "points_amount",
+    "reason"
+  ]
+}

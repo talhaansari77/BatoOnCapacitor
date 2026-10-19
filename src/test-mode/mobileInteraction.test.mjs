@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import {shouldSendOnEnter} from "../lib/messageKeyboard.js";
+import {messageScrollTop} from "../lib/messageScroll.js";
+assert.equal(shouldSendOnEnter({key:"Enter"},false),false,"Phone Return keeps writing");
+assert.equal(shouldSendOnEnter({key:"Enter"},true),true);
+assert.equal(shouldSendOnEnter({key:"Enter",shiftKey:true},true),false);
+assert.equal(shouldSendOnEnter({key:"Enter",isComposing:true},true),false);
+assert.equal(shouldSendOnEnter({key:"Enter",keyCode:229},true),false);
+assert.equal(shouldSendOnEnter({key:"a"},true),false);
+const reading={initial:false,newestChanged:false,olderAdded:false,nearBottom:false,top:150,previousHeight:1000,height:1200,clientHeight:400};
+assert.equal(messageScrollTop({...reading,initial:true}),800);
+assert.equal(messageScrollTop({...reading,newestChanged:true}),150,"Incoming message does not interrupt reading");
+assert.equal(messageScrollTop({...reading,newestChanged:true,nearBottom:true}),800);
+assert.equal(messageScrollTop({...reading,olderAdded:true}),350,"Prepending older messages retains the visible content");
+assert.equal(messageScrollTop({...reading,height:200,clientHeight:400,initial:true}),0);
+console.log("PASS: mobile newline, desktop send, Shift+Enter, IME composition and stable conversation reading position.");

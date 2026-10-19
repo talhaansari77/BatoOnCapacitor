@@ -1,0 +1,70 @@
+{
+  "name": "AcademyProgress",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "content_id": {
+      "type": "string",
+      "description": "ID of the academy content"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started",
+      "description": "Progress status"
+    },
+    "progress_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Progress percentage (0-100)"
+    },
+    "started_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When user started the content"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When user completed the content"
+    },
+    "time_spent_minutes": {
+      "type": "number",
+      "default": 0,
+      "description": "Total time spent on content"
+    },
+    "points_earned": {
+      "type": "number",
+      "default": 0,
+      "description": "Points earned from this content"
+    },
+    "rating": {
+      "type": "number",
+      "description": "User rating (1-5)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes/comments"
+    },
+    "last_accessed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time user accessed content"
+    },
+    "quiz_score": {
+      "type": "number",
+      "description": "Quiz score if applicable (percentage)"
+    }
+  },
+  "required": [
+    "client_email",
+    "content_id"
+  ]
+}

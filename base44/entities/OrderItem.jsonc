@@ -1,0 +1,46 @@
+{
+  "name": "OrderItem",
+  "type": "object",
+  "properties": {
+    "order_id": {
+      "type": "string",
+      "description": "ID of the order"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "ID of the product"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Product name (snapshot at purchase time)"
+    },
+    "product_price": {
+      "type": "number",
+      "description": "Product price at purchase time"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Quantity ordered"
+    },
+    "subtotal": {
+      "type": "number",
+      "description": "Item subtotal (price \u00d7 quantity)"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "AED",
+        "KWD",
+        "USD"
+      ],
+      "description": "Currency of this record. Never infer currency by changing the selected branch."
+    }
+  },
+  "required": [
+    "order_id",
+    "product_id",
+    "product_name",
+    "product_price",
+    "quantity"
+  ]
+}

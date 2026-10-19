@@ -1,0 +1,93 @@
+{
+  "name": "CommunityPost",
+  "type": "object",
+  "properties": {
+    "author_email": {
+      "type": "string",
+      "description": "Email of the post author"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name of author (can be anonymous)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Post title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Post content"
+    },
+    "media_url": {
+      "type": "string",
+      "description": "URL of attached photo or video"
+    },
+    "media_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "photo",
+        "video"
+      ],
+      "default": "none",
+      "description": "Type of media attached"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "general_discussion",
+        "success_stories",
+        "questions",
+        "support",
+        "tips_advice"
+      ],
+      "description": "Post category"
+    },
+    "is_anonymous": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether post is anonymous"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Moderation status"
+    },
+    "moderated_by": {
+      "type": "string",
+      "description": "Email of moderator"
+    },
+    "moderated_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When moderation occurred"
+    },
+    "moderation_notes": {
+      "type": "string",
+      "description": "Moderator notes"
+    },
+    "likes_count": {
+      "type": "number",
+      "default": 0
+    },
+    "comments_count": {
+      "type": "number",
+      "default": 0
+    },
+    "is_pinned": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "author_email",
+    "title",
+    "content",
+    "category"
+  ]
+}

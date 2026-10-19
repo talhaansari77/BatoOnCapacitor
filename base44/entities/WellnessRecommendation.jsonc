@@ -1,0 +1,89 @@
+{
+  "name": "WellnessRecommendation",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "recommendation_type": {
+      "type": "string",
+      "enum": [
+        "nutrition",
+        "exercise",
+        "sleep",
+        "stress_management",
+        "hydration",
+        "supplements",
+        "lifestyle",
+        "hair_care"
+      ],
+      "description": "Type of wellness recommendation"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the recommendation"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description"
+    },
+    "why_relevant": {
+      "type": "string",
+      "description": "Why this is relevant to their treatment"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "essential",
+        "recommended",
+        "optional"
+      ],
+      "default": "recommended",
+      "description": "Priority level"
+    },
+    "frequency": {
+      "type": "string",
+      "description": "How often to follow (e.g., 'daily', 'weekly')"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "dismissed"
+      ],
+      "default": "active",
+      "description": "Status"
+    },
+    "ai_personalized": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this was AI-personalized based on their data"
+    },
+    "related_to_session": {
+      "type": "string",
+      "description": "Session ID if related to specific treatment"
+    },
+    "expected_benefit": {
+      "type": "string",
+      "description": "What benefit client can expect"
+    },
+    "tracking_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether client wants to track this"
+    },
+    "last_completed": {
+      "type": "string",
+      "format": "date",
+      "description": "Last time client completed this"
+    }
+  },
+  "required": [
+    "client_email",
+    "recommendation_type",
+    "title",
+    "description"
+  ]
+}

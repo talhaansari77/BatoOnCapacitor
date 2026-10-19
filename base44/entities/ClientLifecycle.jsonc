@@ -1,0 +1,139 @@
+{
+  "name": "ClientLifecycle",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "enum": [
+        "new_client",
+        "active",
+        "engaged",
+        "at_risk",
+        "churned",
+        "won_back",
+        "vip"
+      ],
+      "default": "new_client",
+      "description": "Current lifecycle stage"
+    },
+    "total_revenue": {
+      "type": "number",
+      "default": 0,
+      "description": "Total revenue from client"
+    },
+    "lifetime_value": {
+      "type": "number",
+      "default": 0,
+      "description": "Calculated lifetime value"
+    },
+    "acquisition_cost": {
+      "type": "number",
+      "description": "Cost to acquire this client"
+    },
+    "acquisition_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date client was acquired"
+    },
+    "last_purchase_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last purchase date"
+    },
+    "last_session_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last treatment session date"
+    },
+    "engagement_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Engagement score (0-100)"
+    },
+    "satisfaction_score": {
+      "type": "number",
+      "description": "Average satisfaction score"
+    },
+    "referrals_made": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of referrals made"
+    },
+    "upsell_opportunities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Identified upsell opportunities"
+    },
+    "churn_risk_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Risk of churning (0-100)"
+    },
+    "retention_notes": {
+      "type": "string",
+      "description": "Notes on retention efforts"
+    },
+    "vip_status": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether client is VIP"
+    },
+    "vip_since": {
+      "type": "string",
+      "format": "date",
+      "description": "Date became VIP"
+    },
+    "loyalty_points": {
+      "type": "number",
+      "default": 0,
+      "description": "Total loyalty points earned"
+    },
+    "loyalty_level": {
+      "type": "string",
+      "enum": [
+        "bronze",
+        "silver",
+        "gold",
+        "platinum",
+        "diamond"
+      ],
+      "default": "bronze",
+      "description": "Loyalty tier level"
+    },
+    "loyalty_badges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of loyalty badge IDs earned"
+    },
+    "total_sessions_completed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total treatment sessions completed"
+    },
+    "total_purchases": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of purchases made"
+    },
+    "show_on_leaderboard": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to display on public loyalty leaderboard"
+    },
+    "leaderboard_display_name": {
+      "type": "string",
+      "description": "Display name for leaderboard"
+    }
+  },
+  "required": [
+    "client_email"
+  ]
+}

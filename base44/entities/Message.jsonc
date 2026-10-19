@@ -1,0 +1,95 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "sender_email": {
+      "type": "string",
+      "description": "Email of the message sender"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Name of the sender"
+    },
+    "sender_role": {
+      "type": "string",
+      "enum": [
+        "client",
+        "doctor",
+        "admin",
+        "staff"
+      ],
+      "default": "client",
+      "description": "Role of the sender"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Message subject"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message content"
+    },
+    "is_from_doctor": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether message is from medical staff"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether message has been read"
+    },
+    "read_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the message was read"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Attached files with metadata"
+    },
+    "thread_id": {
+      "type": "string",
+      "description": "ID to group related messages together"
+    },
+    "parent_message_id": {
+      "type": "string",
+      "description": "ID of the message being replied to"
+    },
+    "case_file_id": {
+      "type": "string",
+      "description": "ID of associated case file"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "Message priority level"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorizing messages"
+    }
+  },
+  "required": [
+    "client_email",
+    "sender_email",
+    "sender_name",
+    "content"
+  ]
+}

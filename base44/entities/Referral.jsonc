@@ -1,0 +1,89 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "referrer_email": {
+      "type": "string",
+      "description": "Email of the person who made the referral"
+    },
+    "referred_email": {
+      "type": "string",
+      "description": "Email of the referred person"
+    },
+    "referred_name": {
+      "type": "string",
+      "description": "Name of the referred person"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "Unique referral code used"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "consultation_booked",
+        "first_session_completed",
+        "rewarded"
+      ],
+      "default": "pending",
+      "description": "Current status of the referral"
+    },
+    "consultation_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When consultation was booked"
+    },
+    "first_session_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When first session was completed"
+    },
+    "reward_amount": {
+      "type": "number",
+      "default": 100,
+      "description": "Reward amount in dollars"
+    },
+    "reward_type": {
+      "type": "string",
+      "enum": [
+        "cash_credit",
+        "service_discount",
+        "product_voucher",
+        "free_session"
+      ],
+      "default": "cash_credit",
+      "description": "Type of reward chosen by referrer"
+    },
+    "reward_tier": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "silver",
+        "gold",
+        "platinum",
+        "diamond"
+      ],
+      "default": "starter",
+      "description": "Reward tier based on total referrals"
+    },
+    "reward_claimed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether reward has been claimed"
+    },
+    "reward_claimed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When reward was claimed"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "referrer_email",
+    "referral_code"
+  ]
+}

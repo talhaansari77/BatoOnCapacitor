@@ -1,0 +1,476 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Self-hosted Arabic typography, including body-level dialog portals. */
+@font-face {
+  font-family: "Bato Somar";
+  src: url("/fonts/somar/SomarSans-Regular.otf") format("opentype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bato Somar";
+  src: url("/fonts/somar/SomarSans-Medium.otf") format("opentype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bato Somar";
+  src: url("/fonts/somar/SomarSans-SemiBold.otf") format("opentype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+html[lang="ar"] body,
+html[lang="ar"] body :where(*) {
+  font-family: "Bato Somar", "Segoe UI", Tahoma, sans-serif;
+  font-synthesis: none;
+  letter-spacing: normal;
+}
+html[lang="ar"] body {
+  font-weight: 400;
+}
+html[lang="ar"] body :is(h1, h2, h3, h4, h5, h6, .font-bold, .font-extrabold, .font-black) {
+  font-weight: 600;
+}
+html[lang="ar"] body :is(button, a, label, time, input, select, textarea) {
+  font-weight: 500;
+}
+/* Preserve each screen’s existing line heights and layout. */
+
+
+/* :root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+} */
+
+
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@media (pointer: coarse) {
+  * {
+    cursor: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Mobile interactions: preserve desktop sizing and the existing palette. */
+@media (max-width: 767px) {
+  [data-bato-button], #bato-main-content button { min-height: 44px; }
+  [data-bato-size="icon"] { min-width: 44px; }
+  #bato-main-content :is(button, a):focus-visible {
+    outline: 2px solid #c4aa8b;
+    outline-offset: 3px;
+  }
+  #bato-main-content :is(button, a), [data-bato-button] { touch-action: manipulation; }
+  #bato-main-content :is(input, textarea, select) { scroll-margin-block: 96px; }
+  .bato-dialog {
+    top: calc(var(--bato-visual-top, 0px) + var(--bato-visual-height, 100dvh) / 2);
+    max-height: min(90dvh, calc(var(--bato-visual-height, 100dvh) - 2rem)) !important;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .bato-conversation {
+    height: calc(var(--bato-visual-height, 100dvh) - 128px);
+    min-height: 0;
+  }
+  .bato-action-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .bato-mobile-search .bato-search-results {
+    max-height: min(18rem, calc(var(--bato-visual-height, 100dvh) - 180px));
+    overscroll-behavior-y: contain;
+  }
+}
+.bato-message-list { overscroll-behavior-y: contain; }
+@media (max-width: 767px) {
+  .bato-booking-dialog { overflow: hidden; }
+}
+/* A short keyboard viewport cannot fit every fixed summary row. Keep title and
+   actions visible; let the complete summary and stage scroll together. */
+@media (max-width: 767px) {
+  [data-bato-short-viewport] .bato-booking-body { display: block; overflow-y: auto; overscroll-behavior-y: contain; }
+  [data-bato-short-viewport] .bato-booking-body > * + * { margin-top: 12px; }
+  [data-bato-short-viewport] .bato-booking-stage { overflow: visible; }
+}
+
+/* Safe-area comfort on notched phones (item 15) */
+#bato-main-content {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Shared pressed micro-state (item 25) — opt-in class, not a global selector */
+.bato-press {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.bato-press:active {
+  transform: scale(0.98);
+}
+
+/* Shared motion: honour reduced-motion preferences (item 25) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 767px) {
+  html[lang="ar"] p { line-height: 1.75; }
+  input, textarea, select { font-size: max(16px, 1em); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bato-press:active, button:active { transform: none !important; }
+}
+
+/* Equal care-action rows in either language. */
+.bato-care-actions > a, .bato-care-actions > button { display:flex; align-items:center; justify-content:flex-start; min-height:44px; padding:12px 16px; border-radius:12px; line-height:1.5; text-align:start; }
+.bato-care-actions > .underline { border:1px solid rgba(196,170,139,.3); text-decoration:none; }
+
+/* BATO composition system: shared roles, varied page compositions.
+   Existing content widths and the Academy palette remain independent. */
+#bato-main-content[data-bato-area="care"], .bato-dialog {
+ --bato-ink:#3a2e1e; --bato-muted:#7c8689; --bato-gold:#c4aa8b;
+ --bato-surface:#fff; --bato-soft:#f9f8f6; --bato-line:rgba(196,170,139,.25);
+ --primary:35 32% 17%; --primary-foreground:38 19% 94%;
+ --secondary:40 20% 96%; --secondary-foreground:35 32% 17%;
+ --accent:36 27% 90%; --accent-foreground:35 32% 17%;
+ --border:36 22% 85%; --input:36 22% 85%; --ring:35 32% 17%;
+}
+.bato-section-intro { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:12px 0; }
+.bato-section-title { color:#3a2e1e; font-size:18px; font-weight:600; line-height:1.5; text-wrap:balance; }
+.bato-section-description { color:#7c8689; font-size:12px; font-weight:400; line-height:1.65; margin-top:4px; }
+.bato-card-title { color:#3a2e1e; font-size:16px; font-weight:600; line-height:1.5; }
+.bato-journey-section { border:1px solid rgba(196,170,139,.25); border-radius:16px; background:#fff; overflow:hidden; box-shadow:0 2px 8px rgba(58,46,30,.025); }
+.bato-section-toggle { width:100%; display:grid; grid-template-columns:36px minmax(0,1fr) 16px; align-items:center; gap:12px; padding:20px; text-align:start; transition:background-color 150ms; }
+.bato-section-toggle:hover { background:#f9f8f6; }
+.bato-section-icon { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:12px; color:#8f7252; background:rgba(196,170,139,.13); }
+.bato-section-icon-accent { color:#8e721d; background:rgba(231,203,80,.14); }
+.bato-section-chevron { width:16px; height:16px; color:#7c8689; transition:transform 180ms; }
+.bato-section-body { padding:20px; border-top:1px solid rgba(196,170,139,.15); }
+.bato-care-panel { box-shadow:0 2px 8px rgba(58,46,30,.025); }
+.bato-primary-action { background:#3a2e1e; color:#fff; border:1px solid #3a2e1e; text-decoration:none; font-weight:600; }
+.bato-primary-action:hover { background:#51412c; }
+.bato-page-heading > span { width:fit-content; max-width:100%; }
+.bato-page-heading h1 { line-height:1.35; text-wrap:balance; }
+.bato-closing-invitation { background:#f6f3ee!important; border:1px solid rgba(196,170,139,.3); border-radius:16px!important; box-shadow:none!important; }
+.bato-closing-invitation p { color:#7c8689!important; }
+.bato-closing-invitation p:is(.font-bold,.font-semibold) { color:#3a2e1e!important; }
+.bato-closing-invitation button { border-color:rgba(196,170,139,.35)!important; color:#3a2e1e!important; }
+.bato-concierge-launcher { bottom:calc(20px + env(safe-area-inset-bottom,0px)); }
+body:has([role="dialog"][data-state="open"]) .bato-concierge-launcher { display:none; }
+@media(max-width:767px) {
+ #bato-main-content[data-bato-area="care"] :is(h1,h2,h3) { overflow-wrap:break-word; }
+ .bato-section-intro { margin-top:8px; }
+ .bato-section-toggle:focus-visible, .bato-journey-section a:focus-visible, .bato-care-actions > :focus-visible { outline:2px solid #3a2e1e; outline-offset:-3px; }
+}
+
+@media(max-width:767px) {
+ #bato-main-content summary { min-height:44px; align-content:center; }
+ #bato-main-content select, #bato-main-content input:not([type="checkbox"]):not([type="radio"]) { min-height:44px; }
+ .bato-dialog :is(button,select,input:not([type="checkbox"]):not([type="radio"])) { min-height:44px; }
+}
+
+/* Keep the switch track delicate inside its 44px mobile hit area. */
+@media(max-width:767px) {
+ #bato-main-content .bato-switch, .bato-dialog .bato-switch { position:relative; width:44px; height:44px; min-width:44px; padding:0; border:0; background:transparent!important; box-shadow:none; }
+ .bato-switch::before { content:""; position:absolute; width:36px; height:20px; inset-inline-start:4px; top:12px; border-radius:999px; background:hsl(var(--input)); pointer-events:none; }
+ .bato-switch[data-state="checked"]::before { background:hsl(var(--primary)); }
+ #bato-main-content .bato-switch > span, .bato-dialog .bato-switch > span { position:absolute; left:6px; right:auto; top:14px; }
+ [dir="rtl"] .bato-switch > span[data-state="unchecked"] { right:6px!important; left:auto!important; transform:translateX(0); }
+ [dir="rtl"] .bato-switch > span[data-state="checked"] { right:6px!important; left:auto!important; transform:translateX(-16px); }
+}
+
+@media(max-width:767px) {
+ #bato-mobile-navigation :is(button,a) { min-height:44px; touch-action:manipulation; }
+ #bato-mobile-navigation :is(button,a):focus-visible { outline:2px solid #3a2e1e; outline-offset:-2px; }
+ [dir="rtl"] #bato-mobile-navigation .flex-row-reverse, [dir="rtl"] .bato-main > header .flex-row-reverse { flex-direction:row; }
+}
+
+/* ── Hair Journey glassmorphism — scoped to the Hair Journey page only ── */
+/* Frosted journey cards: keep the warm cream palette, add translucency + blur. */
+.hair-glass-page .bato-journey-section {
+  background: rgba(255,255,255,0.5);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border-color: rgba(255,255,255,0.6);
+  box-shadow: 0 8px 32px rgba(58,46,30,0.08), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+/* White cards inside the page (explore items, disclosure panels, step lists). */
+.hair-glass-page .bg-white {
+  background: rgba(255,255,255,0.5) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 0 8px 32px rgba(58,46,30,0.07), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+/* A local tonal backdrop gives the appointment glass something to refract.
+   Its position follows the card, independently of page length. */
+.hair-glass-page .bato-appointment-glass-stage {
+  border-radius: 1rem;
+  background:
+    radial-gradient(ellipse at 100% 4%, rgba(183,143,94,0.72), transparent 58%),
+    radial-gradient(ellipse at 0% 80%, rgba(134,147,143,0.55), transparent 60%),
+    linear-gradient(135deg, #e3d5c1, #ece6db 48%, #c3b6a3);
+}
+.hair-glass-page .bato-appointment-glass.bg-white {
+  position: relative;
+  background: linear-gradient(125deg, rgba(255,250,240,0.66), rgba(255,250,240,0.3) 56%, rgba(255,250,240,0.48)) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  backdrop-filter: blur(20px) saturate(120%);
+  border-color: rgba(255,250,240,0.78);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    inset 1px 0 0 rgba(255,255,255,0.35),
+    inset 0 -1px 0 rgba(107,83,53,0.14),
+    0 12px 30px -12px rgba(58,46,30,0.26);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hair-glass-page .bato-appointment-glass.bg-white {
+    background: linear-gradient(125deg, #eee4d4, #e0d5c5) !important;
+  }
+}
+/* Soft inner tiles (#f9f8f6) become lightly frosted so cards read as one glass layer. */
+.hair-glass-page [style*="#f9f8f6"] {
+  background: rgba(255,255,255,0.45) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+/* Mobile core navigation: dark bronze glass over the scrolling page. */
+.bato-bottom-nav { display:none; }
+@media (max-width:767px) {
+  .bato-with-bottom-nav #bato-main-content {
+    padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));
+    scroll-padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));
+  }
+  .bato-bottom-nav {
+    position:fixed;
+    z-index:40;
+    inset-inline:12px;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px));
+    width:calc(100% - 24px);
+    max-width:480px;
+    margin-inline:auto;
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    padding:7px 5px;
+    border:1px solid rgba(238,219,189,.45);
+    border-radius:24px;
+    background:linear-gradient(115deg,rgba(94,77,55,.86),rgba(41,35,28,.8) 60%,rgba(74,63,46,.86));
+    -webkit-backdrop-filter:blur(22px) saturate(140%);
+    backdrop-filter:blur(22px) saturate(140%);
+    box-shadow:inset 0 1px 0 rgba(255,245,227,.24),inset 0 -1px 0 rgba(0,0,0,.18),0 8px 28px rgba(42,33,23,.24);
+  }
+  .bato-bottom-nav-item {
+    min-width:0;
+    min-height:48px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    color:#e1d8ca;
+    border-radius:18px;
+    text-decoration:none;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    transition:color 150ms ease,background 150ms ease;
+  }
+  .bato-bottom-nav-icon {
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    transition:background 150ms ease,box-shadow 150ms ease;
+  }
+  .bato-bottom-nav-item[aria-current="page"] { color:#ffe5b7; }
+  .bato-bottom-nav-item[aria-current="page"] .bato-bottom-nav-icon {
+    background:rgba(222,192,148,.2);
+    box-shadow:inset 0 1px 0 rgba(255,239,214,.22);
+  }
+  .bato-bottom-nav-item:focus-visible { outline:2px solid #ffe5b7; outline-offset:-2px; }
+  .bato-bottom-nav-item:active { background:rgba(255,236,211,.12); }
+  .bato-bottom-nav-badge {
+    position:absolute;
+    top:-3px;
+    inset-inline-end:-3px;
+    min-width:17px;
+    height:17px;
+    padding-inline:3px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:99px;
+    background:#b33d37;
+    color:#fff;
+    font-size:10px;
+    line-height:1;
+    border:1px solid #6b5140;
+  }
+  .bato-with-bottom-nav .bato-concierge-launcher { bottom:calc(104px + env(safe-area-inset-bottom,0px)); }
+  html[data-bato-keyboard-open] .bato-bottom-nav { display:none; }
+  html[data-bato-keyboard-open] .bato-concierge-launcher { display:none; }
+  body:has([role="dialog"][data-state="open"]) .bato-bottom-nav { visibility:hidden; }
+  .bato-test-toolbar { bottom:calc(104px + env(safe-area-inset-bottom,0px)); }
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  .bato-bottom-nav { background:linear-gradient(115deg,#594b38,#2e271e); }
+}

@@ -1,0 +1,119 @@
+{
+  "name": "TreatmentSession",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "session_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the treatment session"
+    },
+    "session_number": {
+      "type": "number",
+      "description": "Sequential session number"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "hair_restoration",
+        "laser_hair_removal",
+        "skin_care",
+        "injections",
+        "general_health"
+      ],
+      "description": "Department providing the treatment"
+    },
+    "treatment_type": {
+      "type": "string",
+      "enum": [
+        "prp_therapy",
+        "mesotherapy",
+        "laser_therapy",
+        "scalp_treatment",
+        "hair_loss_medication",
+        "laser_hair_removal_face",
+        "laser_hair_removal_body",
+        "laser_hair_removal_bikini",
+        "facial_treatment",
+        "chemical_peel",
+        "microneedling",
+        "hydrafacial",
+        "acne_treatment",
+        "botox",
+        "dermal_fillers",
+        "lip_fillers",
+        "health_consultation",
+        "iv_therapy",
+        "vitamin_injections",
+        "blood_test",
+        "consultation"
+      ],
+      "description": "Specific treatment performed"
+    },
+    "areas_treated": {
+      "type": "string",
+      "description": "Areas treated during session"
+    },
+    "units_used": {
+      "type": "number",
+      "description": "Units used (for injections like Botox)"
+    },
+    "product_used": {
+      "type": "string",
+      "description": "Product or material used (e.g., filler type, laser type)"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of progress photos"
+    },
+    "specialist_name": {
+      "type": "string",
+      "description": "Name of specialist who performed treatment"
+    },
+    "specialist_notes": {
+      "type": "string",
+      "description": "Specialist's notes about the session"
+    },
+    "next_steps": {
+      "type": "string",
+      "description": "Instructions for client"
+    },
+    "next_recommended_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Recommended date for next session"
+    },
+    "client_satisfaction": {
+      "type": "number",
+      "description": "Client satisfaction score (1-10)"
+    },
+    "pain_level": {
+      "type": "number",
+      "description": "Pain level reported by client (1-10)"
+    },
+    "side_effects": {
+      "type": "string",
+      "description": "Any side effects reported"
+    },
+    "progress_notes": {
+      "type": "string",
+      "description": "Client's own progress observations"
+    },
+    "package_id": {
+      "type": "string",
+      "description": "Specific package whose completed session this record represents"
+    }
+  },
+  "required": [
+    "client_email",
+    "session_date",
+    "department",
+    "treatment_type"
+  ]
+}

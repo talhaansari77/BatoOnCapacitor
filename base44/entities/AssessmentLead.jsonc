@@ -1,0 +1,100 @@
+{
+  "name": "AssessmentLead",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "assessment_type": {
+      "type": "string",
+      "enum": [
+        "hair",
+        "skin",
+        "laser"
+      ],
+      "description": "Type of assessment"
+    },
+    "main_concern": {
+      "type": "string",
+      "description": "Primary concern selected"
+    },
+    "timeline": {
+      "type": "string",
+      "description": "When the concern started"
+    },
+    "pattern": {
+      "type": "string",
+      "description": "How the concern manifests"
+    },
+    "previous_treatments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Previous treatments tried"
+    },
+    "internal_factors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Internal factors experienced"
+    },
+    "biggest_worry": {
+      "type": "string",
+      "description": "Main concern/worry"
+    },
+    "photos_uploaded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether photos were uploaded"
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of uploaded assessment photos"
+    },
+    "recommended_starting_point": {
+      "type": "string",
+      "enum": [
+        "consultation",
+        "biomarker_review",
+        "team_review",
+        "profile_connect"
+      ],
+      "description": "Recommended next step"
+    },
+    "sent_to_team": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether assessment was sent to team"
+    },
+    "sent_to_team_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When assessment was sent"
+    },
+    "message_id": {
+      "type": "string",
+      "description": "Linked message ID if sent"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "sent_to_team",
+        "team_reviewed"
+      ],
+      "default": "in_progress",
+      "description": "Assessment status"
+    }
+  },
+  "required": [
+    "client_email",
+    "assessment_type"
+  ]
+}

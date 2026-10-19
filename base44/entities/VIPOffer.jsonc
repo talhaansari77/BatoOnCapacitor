@@ -1,0 +1,115 @@
+{
+  "name": "VIPOffer",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Offer title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the offer"
+    },
+    "offer_type": {
+      "type": "string",
+      "enum": [
+        "service_discount",
+        "free_service",
+        "exclusive_product",
+        "early_access",
+        "special_event",
+        "upgrade",
+        "complimentary_consultation"
+      ],
+      "description": "Type of VIP offer"
+    },
+    "tier_requirement": {
+      "type": "string",
+      "enum": [
+        "platinum",
+        "diamond",
+        "any_vip"
+      ],
+      "default": "any_vip",
+      "description": "Minimum tier required"
+    },
+    "discount_percentage": {
+      "type": "number",
+      "description": "Discount percentage if applicable"
+    },
+    "discount_amount": {
+      "type": "number",
+      "description": "Fixed discount amount if applicable"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "treatment",
+        "product",
+        "consultation",
+        "wellness",
+        "event",
+        "general"
+      ],
+      "description": "Offer category"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Offer image URL"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When offer becomes available"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When offer expires"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether offer is currently active"
+    },
+    "is_limited": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether offer has limited availability"
+    },
+    "slots_total": {
+      "type": "number",
+      "description": "Total slots available if limited"
+    },
+    "slots_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of slots already claimed"
+    },
+    "redemption_instructions": {
+      "type": "string",
+      "description": "Instructions on how to redeem"
+    },
+    "terms_conditions": {
+      "type": "string",
+      "description": "Terms and conditions"
+    },
+    "highlight_on_dashboard": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to highlight on VIP dashboard"
+    },
+    "priority": {
+      "type": "number",
+      "default": 0,
+      "description": "Display priority (higher shows first)"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "offer_type",
+    "tier_requirement",
+    "category"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Lead's email address"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Full name"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "new_lead",
+        "contacted",
+        "qualified",
+        "consultation_booked",
+        "consultation_completed",
+        "proposal_sent",
+        "converted",
+        "lost"
+      ],
+      "default": "new_lead",
+      "description": "Current stage in sales pipeline"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "website",
+        "referral",
+        "social_media",
+        "google_ads",
+        "phone",
+        "walk_in",
+        "email_campaign",
+        "other"
+      ],
+      "description": "How the lead found us"
+    },
+    "interest_level": {
+      "type": "string",
+      "enum": [
+        "cold",
+        "warm",
+        "hot"
+      ],
+      "default": "warm",
+      "description": "Lead temperature/interest level"
+    },
+    "budget_range": {
+      "type": "string",
+      "enum": [
+        "under_5k",
+        "5k_10k",
+        "10k_15k",
+        "15k_plus",
+        "not_disclosed"
+      ],
+      "description": "Budget range"
+    },
+    "hair_loss_type": {
+      "type": "string",
+      "description": "Type of hair loss they're experiencing"
+    },
+    "preferred_treatment": {
+      "type": "string",
+      "description": "Treatment they're interested in"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the lead"
+    },
+    "lead_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Lead quality score (0-100)"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Sales rep email assigned to this lead"
+    },
+    "last_contact_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time we contacted the lead"
+    },
+    "next_follow_up": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled next follow-up"
+    },
+    "consultation_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled consultation date"
+    },
+    "converted_to_client": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether lead converted to paying client"
+    },
+    "converted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date when converted to client"
+    },
+    "lost_reason": {
+      "type": "string",
+      "description": "Reason if lead was lost"
+    },
+    "utm_source": {
+      "type": "string",
+      "description": "UTM tracking source"
+    },
+    "utm_campaign": {
+      "type": "string",
+      "description": "UTM tracking campaign"
+    },
+    "referral_source": {
+      "type": "string",
+      "description": "Name of person who referred"
+    }
+  },
+  "required": [
+    "email",
+    "full_name"
+  ]
+}

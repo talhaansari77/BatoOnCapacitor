@@ -1,0 +1,48 @@
+{
+  "name": "OnboardingProgress",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "current_step": {
+      "type": "number",
+      "default": 1,
+      "description": "Current onboarding step (1-6)"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether onboarding is completed"
+    },
+    "personal_info_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "medical_info_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "features_viewed": {
+      "type": "boolean",
+      "default": false
+    },
+    "first_appointment_booked": {
+      "type": "boolean",
+      "default": false
+    },
+    "photos_uploaded": {
+      "type": "boolean",
+      "default": false
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When onboarding was completed"
+    }
+  },
+  "required": [
+    "client_email"
+  ]
+}

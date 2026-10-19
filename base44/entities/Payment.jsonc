@@ -1,0 +1,83 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "invoice_id": {
+      "type": "string",
+      "description": "ID of the invoice being paid"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When payment was made"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "credit_card",
+        "debit_card",
+        "bank_transfer",
+        "cash",
+        "reward_redemption",
+        "insurance"
+      ],
+      "description": "Payment method used"
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "Payment gateway transaction ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "pending",
+        "refunded"
+      ],
+      "default": "success",
+      "description": "Payment status"
+    },
+    "card_last_four": {
+      "type": "string",
+      "description": "Last 4 digits of card used"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Payment notes"
+    },
+    "refund_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount refunded if applicable"
+    },
+    "refund_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When refund was processed"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "AED",
+        "KWD",
+        "USD"
+      ],
+      "description": "Currency of this record. Never infer currency by changing the selected branch."
+    }
+  },
+  "required": [
+    "client_email",
+    "invoice_id",
+    "amount",
+    "payment_method"
+  ]
+}

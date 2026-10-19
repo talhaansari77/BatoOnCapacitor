@@ -1,0 +1,74 @@
+{
+  "name": "PreAppointmentCheckin",
+  "type": "object",
+  "properties": {
+    "appointment_id": {
+      "type": "string",
+      "description": "ID of the appointment"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "skipped"
+      ],
+      "default": "pending",
+      "description": "Check-in status"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When check-in was completed"
+    },
+    "current_medications": {
+      "type": "string",
+      "description": "Any current medications"
+    },
+    "recent_health_changes": {
+      "type": "string",
+      "description": "Any recent health changes"
+    },
+    "current_concerns": {
+      "type": "string",
+      "description": "Any concerns or questions for the appointment"
+    },
+    "pain_tolerance_today": {
+      "type": "number",
+      "description": "Pain tolerance level today (1-10)"
+    },
+    "last_meal_time": {
+      "type": "string",
+      "description": "When they last ate"
+    },
+    "transportation_arranged": {
+      "type": "boolean",
+      "description": "Whether transportation is arranged"
+    },
+    "emergency_contact_confirmed": {
+      "type": "boolean",
+      "description": "Whether emergency contact is up to date"
+    },
+    "consent_forms_signed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether required consent forms are signed"
+    },
+    "special_requests": {
+      "type": "string",
+      "description": "Any special requests or accommodations needed"
+    },
+    "mood_rating": {
+      "type": "number",
+      "description": "How they're feeling today (1-10)"
+    }
+  },
+  "required": [
+    "appointment_id",
+    "client_email"
+  ]
+}

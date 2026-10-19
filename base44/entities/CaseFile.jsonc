@@ -1,0 +1,86 @@
+{
+  "name": "CaseFile",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "primary_department": {
+      "type": "string",
+      "enum": [
+        "hair_restoration",
+        "laser_hair_removal",
+        "skin_care",
+        "injections",
+        "general_health"
+      ],
+      "description": "Primary department client is being treated in"
+    },
+    "case_status": {
+      "type": "string",
+      "enum": [
+        "initial_consultation",
+        "treatment_planned",
+        "in_treatment",
+        "post_treatment",
+        "completed"
+      ],
+      "default": "initial_consultation",
+      "description": "Current status of the case"
+    },
+    "treatment_plan": {
+      "type": "string",
+      "description": "Detailed treatment plan"
+    },
+    "diagnosis": {
+      "type": "string",
+      "description": "Diagnosis or condition being treated"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Treatment start date"
+    },
+    "expected_completion": {
+      "type": "string",
+      "format": "date",
+      "description": "Expected completion date"
+    },
+    "total_sessions_planned": {
+      "type": "number",
+      "description": "Total treatment sessions planned"
+    },
+    "assigned_specialist": {
+      "type": "string",
+      "description": "Name of assigned specialist"
+    },
+    "before_photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Before treatment photos"
+    },
+    "treatment_goals": {
+      "type": "string",
+      "description": "Client's treatment goals"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional case notes"
+    },
+    "contraindications": {
+      "type": "string",
+      "description": "Any medical contraindications"
+    },
+    "package_id": {
+      "type": "string",
+      "description": "Specific care program linked to this case; prevents mixing plans between programs"
+    }
+  },
+  "required": [
+    "client_email",
+    "case_status"
+  ]
+}
