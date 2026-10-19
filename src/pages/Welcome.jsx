@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useLocation } from "@/components/LocationContext";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -31,6 +32,7 @@ const DIFFERENTIATORS = [
 
 export default function Welcome() {
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     if (isStandaloneBuild) return; // Always show Welcome first in an offline iOS build.

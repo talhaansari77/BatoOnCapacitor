@@ -36,6 +36,7 @@ import { hasStandaloneSession, isStandaloneBuild, standaloneOnboardingComplete }
 import SignIn from './pages/SignIn';
 import StandaloneErrorBoundary from './native/StandaloneErrorBoundary';
 import Welcome from './pages/Welcome';
+import { LocationProvider } from './components/LocationContext';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -121,6 +122,7 @@ function App() {
     <ThemeProvider attribute="class" storageKey="bato_theme" defaultTheme="system" enableSystem>
     <MotionConfig reducedMotion="user" transition={{ duration: 0.22 }}>
     <AuthProvider>
+    <LocationProvider>
     <VisualStyleProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
@@ -134,6 +136,7 @@ function App() {
         <VisualEditAgent />
       </QueryClientProvider>
     </VisualStyleProvider>
+    </LocationProvider>
     </AuthProvider>
     </MotionConfig>
     </ThemeProvider>

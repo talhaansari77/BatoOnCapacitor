@@ -9,7 +9,7 @@ export default function AppearanceSettings({showStyles = true}) {
   const { theme = "system" } = useTheme();
   const {setAppearance,syncState,retrySync} = useVisualStyle();
   const id=useId();
-  const { t } = useLocation();
+  const { t, language, setLanguage } = useLocation();
   const options = [
     { value: "system", label: t("System", "النظام"), Icon: Monitor },
     { value: "light", label: t("Light", "فاتح"), Icon: Sun },
@@ -30,6 +30,18 @@ export default function AppearanceSettings({showStyles = true}) {
       </div>
     </fieldset>
     {showStyles && <StyleChooser />}
+    <fieldset className="space-y-3 border-t border-gray-200 pt-4">
+      <legend className="font-semibold text-sm">{t("Language", "اللغة")}</legend>
+      <div className="grid grid-cols-2 gap-2" dir="ltr">
+        {[{value:"en",label:"English"},{value:"ar",label:"العربية"}].map(({value,label}) => (
+          <button key={value} type="button" aria-pressed={language === value}
+            onClick={() => setLanguage(value)}
+            className={`min-h-11 rounded-xl border px-3 py-2 text-sm font-medium ${language === value ? "bg-[#3a2e1e] text-white border-[#3a2e1e]" : "bg-white text-[#3a2e1e] border-gray-300"}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+    </fieldset>
     {syncState === "error" && <div role="status" className="text-sm"><p>{t("Applied here. We couldn’t save it to your account yet.", "تم تطبيق اختيارك هنا. لم نتمكن من حفظه في حسابك بعد.")}</p><button type="button" className="underline min-h-11" onClick={()=>retrySync().catch(()=>{})}>{t("Try saving again", "أعد محاولة الحفظ")}</button></div>}
     </div>
   );

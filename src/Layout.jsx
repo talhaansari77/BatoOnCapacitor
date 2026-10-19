@@ -352,6 +352,7 @@ function LayoutContent({ children, currentPageName }) {
         [dir="ltr"] .bato-main { margin-left: 256px; }
         [dir="rtl"] .bato-main { margin-right: 256px; }
         @media (max-width: 767px) {
+          .bato-mobile-top-header { padding-top: max(12px, env(safe-area-inset-top, 0px)); min-height: 64px; display: block !important; visibility: visible !important; }
           .bato-sidebar { display: none; }
           .bato-main { margin-left: 0 !important; margin-right: 0 !important; }
         }
@@ -387,7 +388,7 @@ function LayoutContent({ children, currentPageName }) {
       {/* ── Main Content ── */}
       <div className="bato-main flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-30">
+        <header className="bato-mobile-top-header bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-30">
           <div className={`flex items-center justify-between gap-3 min-w-0 ${isRTL ? "flex-row-reverse" : ""}`}>
             <div className={`flex items-center gap-3 flex-1 min-w-0 ${isRTL ? "flex-row-reverse" : ""}`}>
               {/* Mobile menu toggle */}
