@@ -20,13 +20,13 @@ import BookedOnboarding from './BookedOnboarding';
 import MakeItYours from '@/components/appearance/MakeItYours';
 import { base44 } from '@/api/base44Client';
 
-async function markLocalCompletion(path) {
+async function markLocalCompletion(path, skipped = false) {
   // Standalone Capacitor navigation still relies on its local demo-account flag.
-  // Keep it in sync ONLY after the authoritative patient API completes.
+  // A skipped journey grants app access locally, not backend completion.
   const user = await base44.auth.me();
   if (!user?.email) throw new Error('Unable to update the local onboarding completion state.');
   const profiles = await base44.entities.BATOProfile.filter({ client_email: user.email });
-  const fields = { completed: true, onboarding_path: path === 'booked' ? 'booked_client' : 'explorer' };
+  const fields = { completed: !skipped, onboarding_skipped: skipped, onboarding_path: path === 'booked' ? 'booked_client' : 'explorer' };
   if (profiles[0]) await base44.entities.BATOProfile.update(profiles[0].id, fields);
   else await base44.entities.BATOProfile.create({ client_email: user.email, ...fields });
 }
@@ -50,6 +50,8 @@ export default function PatientOriginalOnboarding() {
   const stepRef = useRef(0);
   const pathRef = useRef(null);
   const profileRef = useRef(null);
+  const priorContactRef = useRef(null);
+  const skippedStepsRef = useRef(false);
 
   const setCurrentProfile = updated => {
     profileRef.current = updated;
@@ -65,6 +67,7 @@ export default function PatientOriginalOnboarding() {
         getOnboardingState(), getOnboardingQuestions(), getPatientProfile().catch(() => readPatientAuth()?.patient ?? {}),
       ]);
       serverRef.current = state;
+      skippedStepsRef.current = false;
       setQuestionnaire(questions);
       setPatient(record);
       const redoRequested = new URLSearchParams(window.location.search).get('edit') === '1';
@@ -78,6 +81,7 @@ export default function PatientOriginalOnboarding() {
         // Home's “Edit your answers” action, show the ORIGINAL path selector.
         // Selecting a path will PUT /steps/path, which starts a fresh run while
         // keeping the previous completed onboarding in the patient's history.
+        priorContactRef.current = uiProfileFromAnswers(state, record);
         pathRef.current = null;
         setPath(null);
         setAppearanceData(null);
@@ -100,11 +104,18 @@ export default function PatientOriginalOnboarding() {
 
   const choosePath = async choice => {
     const backendPath = choice === 'booked_client' ? 'booked' : 'explorer';
+    skippedStepsRef.current = false;
     const state = await saveOnboardingStep('path', { path: backendPath });
     serverRef.current = state;
     pathRef.current = backendPath;
     setPath(backendPath);
-    const newProfile = { ...uiProfileFromAnswers(state, patient), current_step: 1, onboarding_path: choice };
+    const last = priorContactRef.current;
+    const newProfile = { ...uiProfileFromAnswers(state, patient),
+      ...(backendPath === "explorer" && last ? {
+        explorer_contact_phone: last.explorer_contact_phone || "",
+        explorer_contact_name: last.explorer_contact_name || "",
+        explorer_preferred_branch: last.explorer_preferred_branch || "",
+      } : {}), current_step: 1, onboarding_path: choice };
     setCurrentProfile(newProfile);
   };
 
@@ -112,7 +123,15 @@ export default function PatientOriginalOnboarding() {
     const pathKey = pathRef.current;
     const previous = stepRef.current;
     const desired = Number(updates.current_step || previous);
-    const nextProfile = { ...profileRef.current, ...updates };
+    const { __skipStep, ...fields } = updates;
+    const nextProfile = { ...profileRef.current, ...fields };
+    if (__skipStep) {
+      skippedStepsRef.current = true;
+      // Skip advances only the UI. The backend keeps its required step pending.
+      // Do not pretend the server accepted missing required answers.
+      setCurrentProfile(nextProfile);
+      return { current_step: desired };
+    }
     if (desired <= previous) {
       // Back navigation edits local answers. PUT is reserved for Continue, so
       // moving back never erases previously saved answers on the server.
@@ -134,24 +153,34 @@ export default function PatientOriginalOnboarding() {
     serverRef.current = state;
     const nextStep = state.ready ? indexForStep(pathKey, null) : indexForStep(pathKey, state.next_step);
     // Do not permit the UI to advance past incomplete/conditional backend steps.
-    if (nextStep === previous && !state.ready) throw new Error('Please complete the required information to continue.');
-    setCurrentProfile({ ...nextProfile, current_step: nextStep });
-    return { current_step: nextStep };
+    if (nextStep === previous && !state.ready && !skippedStepsRef.current) throw new Error('Please complete the required information to continue.');
+    // After an explicit Skip, keep the original wizard navigable while the
+    // backend retains its earliest missing required answer.
+    const uiNextStep = skippedStepsRef.current ? desired : nextStep;
+    setCurrentProfile({ ...nextProfile, current_step: uiNextStep });
+    return { current_step: uiNextStep };
   };
 
   const prepareAppearance = async data => {
-    if (!serverRef.current?.ready) {
+    if (!skippedStepsRef.current && !serverRef.current?.ready) {
       const latest = await getOnboardingState();
       serverRef.current = latest;
-      if (!latest.ready) throw new Error('Your onboarding still has required steps to complete.');
+      if (!latest.ready) {
+        const pending = indexForStep(pathRef.current, latest.next_step);
+        setCurrentProfile({ ...profileRef.current, current_step: pending });
+        throw new Error('Some required answers were skipped. Please complete them before finishing onboarding.');
+      }
     }
     setAppearanceData(data);
     window.scrollTo(0, 0);
   };
 
   const finishAppearance = async () => {
-    await completeOnboarding();
-    await markLocalCompletion(pathRef.current);
+    // The server does not permit completing an onboarding with missing required
+    // steps. Explicit Skip grants local app access without falsifying server state.
+    const canComplete = !skippedStepsRef.current && serverRef.current?.ready;
+    if (canComplete) await completeOnboarding();
+    await markLocalCompletion(pathRef.current, !canComplete);
     const data = appearanceData;
     if (pathRef.current === 'booked') {
       navigate('/Dashboard');

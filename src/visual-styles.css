@@ -494,3 +494,9 @@ html[data-bato-style] .bato-hair-progress-caption {color:var(--style-hero-muted)
  html[data-bato-style] #bato-main-content[data-bato-area="care"] .bato-style-hero .bato-hair-progress {width:88px;height:88px;}
  html[data-bato-style] .bato-hair-progress-value {font-size:26px;}
 }
+/* Final-touch actions: original appearance artwork remains unchanged. */
+.bato-customize-topbar {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;}
+.bato-customize-back {min-height:44px;padding:10px 4px;border:0;background:transparent;color:var(--style-ink);font-size:13px;font-weight:600;white-space:nowrap;}
+.bato-customize-topbar .bato-enter-app {min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border:1px solid var(--style-line);border-radius:12px;background:#3a2e1e;color:#f9f8f6;font-size:13px;font-weight:700;line-height:1.2;box-shadow:0 3px 10px rgba(0,0,0,.13);cursor:pointer;}
+.bato-customize-topbar .bato-enter-app:disabled,.bato-customize-back:disabled {opacity:.6;cursor:wait;}
+.bato-customize-topbar :is(button):focus-visible {outline:2px solid #c4aa8b;outline-offset:3px;}

@@ -379,10 +379,17 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete, ap
       setSaveError(error?.message || t("We couldn't save your progress. Your answers are still here. Try again.", "تعذر حفظ تقدمك. إجاباتك ما زالت هنا. حاول مرة أخرى."));
     } finally { actionBusy.current = false; setSaving(false); }
   };
-  const next = () => runAction(async () => {
+  const next = ({ skip = false } = {}) => runAction(async () => {
+    if (skip && apiMode) {
+      const nextStep = Math.min(step + 1, TOTAL_STEPS);
+      const result = await onSave({ current_step: nextStep, __skipStep: true });
+      setStep(result?.current_step || nextStep);
+      window.scrollTo(0, 0);
+      return;
+    }
     const requiredFields = Array.from(document.querySelectorAll('[data-bato-onboarding-required="true"]'));
     const invalid = requiredFields.find(input => !String(input.value || '').trim() || !input.checkValidity());
-    if (invalid) {
+    if (invalid && !skip) {
       invalid.focus();
       invalid.reportValidity();
       throw new Error(t('Please complete the required text fields.', 'يرجى إكمال الحقول النصية المطلوبة.'));
@@ -786,7 +793,7 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete, ap
               />
               <CTAButton label={tr("Continue")} onClick={next} />
               {tr((data.uploaded_documents || []).length === 0 && (
-                <button onClick={next} className="w-full py-2.5 text-xs text-[#7c8689]">{tr("I don't have documents to upload")}</button>
+                <button onClick={() => next({ skip: true })} className="w-full py-2.5 text-xs text-[#7c8689]">{tr("I don't have documents to upload")}</button>
               ))}
             </div>
           </div>
@@ -830,7 +837,7 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete, ap
             <div className="space-y-2 mt-4">
               <CTAButton label={tr("Continue")} onClick={next} />
               {tr((data.uploaded_photos || []).length === 0 && (
-                <button onClick={next} className="w-full py-2.5 text-xs text-[#7c8689]">{tr("Skip for now")}</button>
+                <button onClick={() => next({ skip: true })} className="w-full py-2.5 text-xs text-[#7c8689]">{tr("Skip for now")}</button>
               ))}
             </div>
           </div>

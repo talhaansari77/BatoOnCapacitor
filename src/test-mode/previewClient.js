@@ -23,7 +23,7 @@ export function standaloneOnboardingComplete() {
   if (!account) return false;
   const saved = storage()?.getItem(localAccountDataKey(account.email));
   if (!saved) return false;
-  try { return JSON.parse(saved)?.records?.BATOProfile?.some(p => p.completed === true) || false; }
+  try { return JSON.parse(saved)?.records?.BATOProfile?.some(p => p.completed === true || p.onboarding_skipped === true) || false; }
   catch { return false; }
 }
 export function activePersona() {

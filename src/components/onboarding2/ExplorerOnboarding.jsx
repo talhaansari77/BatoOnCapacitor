@@ -36,6 +36,13 @@ const ASSESSMENT_OPTIONS = {
 
 const HAIR_DEPTH_TRIGGERS = ["Hair thinning", "Hair shedding"];
 
+const prefixForBranch = branch => String(branch).toLowerCase() === "dubai" ? "+971" : "+965";
+const switchPhonePrefix = (phone, branch) => {
+  const current = String(phone || "").trim();
+  const localNumber = current.replace(/^(?:\+965|\+971)(?=\D|\d)/, "").replace(/^\s+/, "");
+  return `${prefixForBranch(branch)}${localNumber ? ` ${localNumber}` : ""}`;
+};
+
 const GOAL_CHIPS = [
   "I want more confidence",
   "I want to understand my options",
@@ -90,7 +97,10 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
   const [desiredResult, setDesiredResult] = useState(GOAL_CHIPS.includes(profile?.desired_result) ? "" : (profile?.desired_result || ""));
   const [goalChip, setGoalChip] = useState(GOAL_CHIPS.includes(profile?.desired_result) ? profile.desired_result : "");
   const [biggestWorry, setBiggestWorry] = useState(profile?.biggest_worry || "");
-  const [branch, setBranch] = useState(profile?.explorer_preferred_branch || "");
+  const [branch, setBranch] = useState(() => {
+    const value = String(profile?.explorer_preferred_branch || "").toLowerCase();
+    return value === "kuwait" ? "Kuwait" : value === "dubai" ? "Dubai" : "";
+  });
   const [name, setName] = useState(profile?.explorer_contact_name || user?.full_name || "");
   const saveBusy = useRef(false);
   const [saving, setSaving] = useState(false);
@@ -107,10 +117,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
     finally { saveBusy.current = false; setSaving(false); }
   };
 
-  const needsHairDepth = () => {
-    const hairSelections = interests.includes("Hair") ? (assessment["Hair"] || []) : [];
-    return hairSelections.some(s => HAIR_DEPTH_TRIGGERS.includes(s));
-  };
+  const needsHairDepth = () => getRouting().interest === "Hair";
 
   const [priority, setPriority] = useState(() => EXPLORER_STARTS.find(s => s.title === profile?.explorer_recommended_start)?.interest || "");
   const relevantStarts = EXPLORER_STARTS.filter(s => interests.includes(s.interest));
@@ -144,10 +151,17 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
     ...extras,
   });
 
-  const next = () => saveAction(async () => {
+  const next = ({ skip = false } = {}) => saveAction(async () => {
+    if (skip && apiMode) {
+      const nextStep = step === 4 ? 5 : Math.min(step + 1, TOTAL_STEPS);
+      const result = await onSave({ current_step: nextStep, __skipStep: true });
+      setStep(result?.current_step || nextStep);
+      window.scrollTo(0, 0);
+      return;
+    }
     const requiredFields = Array.from(document.querySelectorAll('[data-bato-onboarding-required="true"]'));
     const invalid = requiredFields.find(input => !String(input.value || '').trim() || !input.checkValidity());
-    if (invalid) {
+    if (invalid && !skip) {
       invalid.focus();
       invalid.reportValidity();
       throw new Error(t('Please complete the required text fields.', 'يرجى إكمال الحقول النصية المطلوبة.'));
@@ -298,7 +312,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
           <div>
             <ScreenTitle title={c("What would you like help with?")} subtitle={c("Select all that feel relevant to you.")} />
             <div className="space-y-5 mb-4">
-              {relevantInterests.map(interest => (
+              {relevantInterests.filter(interest => interest === (chosenStart?.interest || relevantInterests[0])).map(interest => (
                 <div key={c(interest)}>
                   <p className="text-xs font-semibold uppercase tracking-wider text-[#7c8689] mb-2">{c(interest)}</p>
                   <div className="flex flex-wrap gap-2">
@@ -356,7 +370,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
               </div>
             </div>
             <CTAButton label={t("Continue", "متابعة")} onClick={next} />
-            <button onClick={next} className="w-full py-2.5 text-xs text-[#7c8689] mt-1">{t("Skip for now", "تجاوز الآن")}</button>
+            <button onClick={() => next({ skip: true })} className="w-full py-2.5 text-xs text-[#7c8689] mt-1">{t("Skip for now", "تجاوز الآن")}</button>
           </div>
         );
       }
@@ -410,7 +424,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
             </div>
             <div className="mt-5 space-y-2">
               <CTAButton label={t("Continue", "متابعة")} onClick={next} />
-              <button onClick={next} className="w-full py-2.5 text-xs text-[#7c8689]">{t("Skip for now", "تجاوز الآن")}</button>
+              <button onClick={() => next({ skip: true })} className="w-full py-2.5 text-xs text-[#7c8689]">{t("Skip for now", "تجاوز الآن")}</button>
             </div>
           </div>
         );
@@ -425,7 +439,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
                 <label className="text-xs font-medium text-[#333435] block mb-1.5">{c("Preferred branch")}</label>
                 <div className="flex gap-2">
                   {["Dubai", "Kuwait"].map(b => (
-                    <button key={c(b)} aria-pressed={branch===b} onClick={() => setBranch(b)} className="flex-1 py-3 rounded-xl text-sm font-medium transition-all"
+                    <button key={c(b)} aria-pressed={branch===b} onClick={() => { setBranch(b); setPhone(prev => switchPhonePrefix(prev, b)); }} className="flex-1 py-3 rounded-xl text-sm font-medium transition-all"
                       style={{ border: "1px solid", borderColor: branch === b ? "#c4aa8b" : "rgba(196,170,139,0.2)", background: branch === b ? "rgba(196,170,139,0.08)" : "#fff", color: "#333435" }}>
                       {c(b)}
                     </button>
@@ -446,7 +460,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete, 
               </div>
             </div>
             <CTAButton label={t("Continue", "متابعة")} onClick={next} />
-            {!apiMode && <button onClick={next} className="w-full py-2.5 text-xs text-[#7c8689] mt-1">{t("I'll add this later", "سأضيف هذا لاحقاً")}</button>}
+            {!apiMode && <button onClick={() => next({ skip: true })} className="w-full py-2.5 text-xs text-[#7c8689] mt-1">{t("I'll add this later", "سأضيف هذا لاحقاً")}</button>}
           </div>
         );
 
