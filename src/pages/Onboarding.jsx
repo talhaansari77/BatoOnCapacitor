@@ -11,6 +11,8 @@ import ExplorerOnboarding from "../components/onboarding2/ExplorerOnboarding.jsx
 import OnboardingShell from "../components/onboarding2/OnboardingShell";
 import ProfileConnectionFlow from "../components/profilelink/ProfileConnectionFlow";
 import MakeItYours from "@/components/appearance/MakeItYours";
+import { readPatientAuth } from "@/native/patientApi";
+import PatientOriginalOnboarding from "@/components/onboarding2/PatientOriginalOnboarding";
 
 function buildStaffSummary(data, userName) {
   return `Pre-Visit Summary — ${userName}
@@ -79,6 +81,11 @@ async function sendStaffNotification(data, userName, profileQuality) {
 }
 
 export default function Onboarding() {
+  if (readPatientAuth()) return <PatientOriginalOnboarding />;
+  return <LegacyOnboarding />;
+}
+
+function LegacyOnboarding() {
   const navigate = useNavigate();
   const { t } = useLocation();
   const [loadError, setLoadError] = useState(false);

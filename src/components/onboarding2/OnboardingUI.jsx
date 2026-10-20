@@ -87,7 +87,7 @@ export function YesNoToggle({ label, hint, value, onChange }) {
   );
 }
 
-export function TextareaField({ label, placeholder, value, onChange, optional = true, hint }) {
+export function TextareaField({ label, placeholder, value, onChange, optional = false, hint }) {
   const tr = useBatoText();
   const fieldId=useId();
   return (
@@ -102,6 +102,8 @@ export function TextareaField({ label, placeholder, value, onChange, optional = 
         onChange={e => onChange(e.target.value)}
         placeholder={tr(placeholder)}
         rows={3}
+        required={!optional}
+        data-bato-onboarding-required={!optional ? "true" : undefined}
         className="w-full rounded-xl border px-3.5 py-3 text-sm text-[#333435] placeholder:text-[#b0b8bc] resize-none outline-none"
         style={{ borderColor: "rgba(196,170,139,0.25)", background: "#ffffff" }}
       />

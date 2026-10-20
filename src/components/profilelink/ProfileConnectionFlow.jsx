@@ -429,6 +429,7 @@ export default function ProfileConnectionFlow({ user, onComplete }) {
                 onSkip={handleSkip}
               />
             </motion.div>
+            
           ))}
 
           {tr(screen === "matching" && (

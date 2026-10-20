@@ -271,10 +271,19 @@ function VisitSpecificQuestions({ service, data, onChange }) {
 function FileUploadCard({ label, hint, files, onAdd, onRemove, isLoading, slots, photoOnly = false }) {
   const tr = useBatoText();
   const ref = useRef();
+  const [selectedPreview, setSelectedPreview] = useState(null);
   const handleFile = async e => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (file && !isLoading) await onAdd(file);
+    if (file && !isLoading) {
+      if (file.type.startsWith('image/')) {
+        setSelectedPreview(previous => {
+          if (previous?.url) URL.revokeObjectURL(previous.url);
+          return { url: URL.createObjectURL(file), name: file.name };
+        });
+      }
+      await onAdd(file);
+    }
   };
   return (
     <div className="space-y-3">
@@ -286,10 +295,17 @@ function FileUploadCard({ label, hint, files, onAdd, onRemove, isLoading, slots,
         {isLoading ? <Loader2 className="w-4 h-4 animate-spin text-[#c4aa8b]" /> : <Upload className="w-4 h-4 text-[#c4aa8b]" />}
         <span className="text-xs text-[#7c8689]">{tr(isLoading ? "Uploading..." : "Tap to upload")}</span>
       </button>
-      <p className="text-[11px] text-[#7c8689]">{tr("Up to 10 files, 10 MB each.")}</p>
+      {selectedPreview && (
+        <div className="flex items-center gap-3 rounded-xl border border-[#c4aa8b]/30 bg-white p-2" aria-label={tr('Selected image preview')}>
+          <img src={selectedPreview.url} alt={tr('Selected image')} className="h-16 w-16 rounded-lg object-cover" />
+          <span className="min-w-0 flex-1 truncate text-xs text-[#333435]">{selectedPreview.name}</span>
+          <button type="button" aria-label={tr('Clear preview')} onClick={() => { URL.revokeObjectURL(selectedPreview.url); setSelectedPreview(null); }}><X className="h-4 w-4 text-[#7c8689]" /></button>
+        </div>
+      )}
+      <p className="text-[11px] text-[#7c8689]">{tr("Up to 20 files per onboarding, 10 MB each.")}</p>
       <div className="space-y-2">
         {files.map((file, index) => <div key={index} className="flex items-center gap-2 rounded-xl border border-[#c4aa8b]/20 bg-white px-3 py-2">
-          <FileIcon className="w-4 h-4 shrink-0 text-[#c4aa8b]" />
+          {file?.preview ? <img src={file.preview} alt={tr('Uploaded image')} className="h-12 w-12 rounded-lg object-cover shrink-0" /> : <FileIcon className="w-4 h-4 shrink-0 text-[#c4aa8b]" />}
           <span className="flex-1 min-w-0 truncate text-xs text-[#333435]">{typeof file === "string" ? file.split("/").pop() : file.name}</span>
           <button type="button" disabled={isLoading} aria-label={tr("Remove file")} onClick={() => onRemove(index)}><X className="w-4 h-4 text-[#7c8689]" /></button>
         </div>)}
@@ -300,7 +316,7 @@ function FileUploadCard({ label, hint, files, onAdd, onRemove, isLoading, slots,
 
 // ─── Main booked onboarding ───────────────────────────────────────────────────
 
-export default function BookedOnboarding({ user, profile, onSave, onComplete }) {
+export default function BookedOnboarding({ user, profile, onSave, onComplete, apiMode = false, onApiUpload, onApiRemove }) {
   const tr = useBatoText();
   const { isRTL, t } = useLocationCtx();
   const STEP_LABELS = isRTL ? STEP_LABELS_AR : STEP_LABELS_EN;
@@ -349,8 +365,9 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete }) 
   const save = async (updates = {}) => {
     const merged = { ...dataRef.current, ...updates, last_updated_at: new Date().toISOString() };
     set(updates);
-    await onSave(merged);
+    const result = await onSave(merged);
     setSaved(true);
+    return result;
   };
   const runAction = async (action) => {
     if (actionBusy.current) return;
@@ -358,13 +375,21 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete }) 
     setSaving(true);
     setSaveError("");
     try { await action(); }
-    catch {
-      setSaveError(t("We couldn't save your progress. Your answers are still here. Try again.", "تعذر حفظ تقدمك. إجاباتك ما زالت هنا. حاول مرة أخرى."));
+    catch (error) {
+      setSaveError(error?.message || t("We couldn't save your progress. Your answers are still here. Try again.", "تعذر حفظ تقدمك. إجاباتك ما زالت هنا. حاول مرة أخرى."));
     } finally { actionBusy.current = false; setSaving(false); }
   };
   const next = () => runAction(async () => {
-    const nextStep = Math.min(step + 1, TOTAL_STEPS);
-    await save({ current_step: nextStep });
+    const requiredFields = Array.from(document.querySelectorAll('[data-bato-onboarding-required="true"]'));
+    const invalid = requiredFields.find(input => !String(input.value || '').trim() || !input.checkValidity());
+    if (invalid) {
+      invalid.focus();
+      invalid.reportValidity();
+      throw new Error(t('Please complete the required text fields.', 'يرجى إكمال الحقول النصية المطلوبة.'));
+    }
+    let nextStep = Math.min(step + 1, TOTAL_STEPS);
+    const result = await save({ current_step: nextStep });
+    if (apiMode && result?.current_step) nextStep = result.current_step;
     setStep(nextStep);
     window.scrollTo(0, 0);
   });
@@ -380,7 +405,9 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete }) 
     set({ [field]: curr.includes(val) ? curr.filter(x => x !== val) : [...curr, val] });
   };
   const upload = (file, field, photoOnly) => runAction(async () => {
-    const reason = validateUpload(file, { photoOnly, count: (dataRef.current[field] || []).length });
+    const reason = apiMode && !['image/jpeg','image/png',...(photoOnly ? [] : ['application/pdf'])].includes(file.type)
+      ? 'type'
+      : validateUpload(file, { photoOnly, count: (dataRef.current[field] || []).length });
     if (reason) {
       toast.error(reason === "size" ? t("Choose a file under 10 MB.", "اختر ملفاً أقل من ١٠ ميغابايت.") : reason === "count" ? t("You can add up to 10 files.", "يمكنك إضافة ١٠ ملفات كحد أقصى.") : t("Choose a supported image or document.", "اختر صورة أو مستنداً مدعوماً."));
       return;
@@ -388,16 +415,28 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete }) 
     const setUploading = photoOnly ? setUploadingPhoto : setUploadingDoc;
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      if (!file_url) throw new Error("Upload incomplete");
-      await save({ [field]: [...(dataRef.current[field] || []), file_url], current_step: step });
+      const fileResult = apiMode ? await onApiUpload(file, field, dataRef.current) : await base44.integrations.Core.UploadFile({ file });
+      const uploaded = apiMode ? fileResult : fileResult?.file_url;
+      if (!uploaded) throw new Error("Upload incomplete");
+      // Uploading a file is independent from saving answers. The backend has
+      // already stored the file; don't resubmit the current step on upload.
+      const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+      set({ [field]: [...(dataRef.current[field] || []), apiMode ? { ...uploaded, ...(preview ? { preview } : {}) } : uploaded] });
       toast.success(t("File saved to your profile.", "تم حفظ الملف في ملفك الشخصي."));
     } catch {
-      setSaveError(t("We couldn't upload or save this file. Your answers are still here. If the file is listed, continue to retry saving; otherwise upload it again.", "تعذر رفع الملف أو حفظه. إجاباتك ما زالت هنا. إذا ظهر الملف في القائمة، اضغط متابعة لإعادة حفظه؛ وإلا أعد رفعه."));
+      setSaveError(t("We couldn't upload this file. Check the selected image and try again.", "تعذر رفع الملف أو حفظه. إجاباتك ما زالت هنا. إذا ظهر الملف في القائمة، اضغط متابعة لإعادة حفظه؛ وإلا أعد رفعه."));
     } finally { setUploading(false); }
   });
   const handlePhotoAdd = file => upload(file, "uploaded_photos", true);
   const handleDocAdd = file => upload(file, "uploaded_documents", false);
+  const removeFile = (field, index) => {
+    if (!apiMode) return set({ [field]: dataRef.current[field].filter((_, idx) => idx !== index) });
+    return runAction(async () => {
+      const item = dataRef.current[field]?.[index];
+      if (item?.id) await onApiRemove(item.id);
+      set({ [field]: dataRef.current[field].filter((_, idx) => idx !== index) });
+    });
+  };
 
   const firstName = user?.full_name?.split(" ")[0] || "";
 
@@ -571,6 +610,7 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete }) 
                 "مثال: أريد أن يستعيد خط شعري كثافته، وأن أشعر بالثقة دون إخفائه."
               )}
               rows={5}
+              required data-bato-onboarding-required="true" minLength={6}
               className="w-full rounded-2xl border px-4 py-4 text-sm text-[#333435] placeholder:text-[#b0b8bc] resize-none outline-none mb-2"
               dir={isRTL ? "rtl" : "ltr"}
               style={{
@@ -740,7 +780,7 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete }) 
                 hint={tr("Lab results, prescriptions, or previous records. Skip if you have nothing to add.")}
                 files={data.uploaded_documents || []}
                 onAdd={handleDocAdd}
-                onRemove={i => set({ uploaded_documents: data.uploaded_documents.filter((_, idx) => idx !== i) })}
+                onRemove={i => removeFile("uploaded_documents", i)}
                 isLoading={uploadingDoc}
                 slots={["Lab Results", "Previous Records", "Prescription / Meds", "Other Document"]}
               />
@@ -781,7 +821,7 @@ export default function BookedOnboarding({ user, profile, onSave, onComplete }) 
                 files={data.uploaded_photos || []}
                 photoOnly
                 onAdd={handlePhotoAdd}
-                onRemove={i => set({ uploaded_photos: data.uploaded_photos.filter((_, idx) => idx !== i) })}
+                onRemove={i => removeFile("uploaded_photos", i)}
                 isLoading={uploadingPhoto}
                 slots={photoSlots}
               />

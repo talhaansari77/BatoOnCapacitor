@@ -78,7 +78,7 @@ Contact phone: ${data.explorer_contact_phone || "Not specified"}
 Team reminder: Explorer profile — reach out to guide to first appointment.`;
 }
 
-export default function ExplorerOnboarding({ user, profile, onSave, onComplete }) {
+export default function ExplorerOnboarding({ user, profile, onSave, onComplete, apiMode = false }) {
   const { isRTL, t, location } = useLocationCtx();
   const c = value => isRTL ? (EXPLORER_GOALS_AR[value] || translateCareText(value)) : value;
   const STEP_LABELS = isRTL ? STEP_LABELS_AR : STEP_LABELS_EN;
@@ -103,7 +103,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete }
     setSaving(true);
     setSaveError("");
     try { await action(); }
-    catch (error) { console.error("Onboarding save failed:", error); setSaveError(t("Your answers could not be saved. Please try again.", "تعذر حفظ إجاباتك. حاول مرة أخرى.")); }
+    catch (error) { console.error("Onboarding save failed:", error); setSaveError(error?.message || t("Your answers could not be saved. Please try again.", "تعذر حفظ إجاباتك. حاول مرة أخرى.")); }
     finally { saveBusy.current = false; setSaving(false); }
   };
 
@@ -145,6 +145,13 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete }
   });
 
   const next = () => saveAction(async () => {
+    const requiredFields = Array.from(document.querySelectorAll('[data-bato-onboarding-required="true"]'));
+    const invalid = requiredFields.find(input => !String(input.value || '').trim() || !input.checkValidity());
+    if (invalid) {
+      invalid.focus();
+      invalid.reportValidity();
+      throw new Error(t('Please complete the required text fields.', 'يرجى إكمال الحقول النصية المطلوبة.'));
+    }
     let nextStep = step + 1;
     // Skip step 4 (hair depth) if not triggered, AND skip step 3 entirely if no relevant interests
     if (step === 2) {
@@ -152,7 +159,8 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete }
       if (relevantInterests.length === 0) nextStep = 5; // skip both 3 and 4
     }
     if (step === 3 && !needsHairDepth()) nextStep = 5;
-    await saveAll({ current_step: nextStep });
+    const result = await saveAll({ current_step: nextStep });
+    if (apiMode && result?.current_step) nextStep = result.current_step;
     setStep(nextStep);
     window.scrollTo(0, 0);
   });
@@ -187,7 +195,7 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete }
       readiness_status: readiness,
     }, user?.full_name || user?.email);
 
-    if (readiness === "interested" && !profile?._preview) {
+    if (readiness === "interested" && !apiMode && !profile?._preview) {
       try {
         await base44.entities.Notification.create({
           client_email: "admin@batoclinic.com",
@@ -426,19 +434,19 @@ export default function ExplorerOnboarding({ user, profile, onSave, onComplete }
               </div>
               <div>
                 <label htmlFor="explorer-name" className="text-xs font-medium text-[#333435] block mb-1.5">{c("Your name")}</label>
-                <input id="explorer-name" autoComplete="name" value={name} onChange={e => setName(e.target.value)} placeholder={c("Your name")}
+                <input required data-bato-onboarding-required="true" id="explorer-name" autoComplete="name" value={name} onChange={e => setName(e.target.value)} placeholder={c("Your name")}
                   className="w-full rounded-xl border px-3.5 py-3 text-sm text-[#333435] outline-none"
                   style={{ borderColor: "rgba(196,170,139,0.25)", background: "#fff" }} />
               </div>
               <div>
                 <label htmlFor="explorer-phone" className="text-xs font-medium text-[#333435] block mb-1.5">{c("Phone / WhatsApp")}</label>
-                <input id="explorer-phone" type="tel" autoComplete="tel" inputMode="tel" dir="ltr" value={phone} onChange={e => setPhone(e.target.value)} placeholder={(branch ? branch==="Kuwait" : location==="kuwait")?"+965 …":"+971 …"}
+                <input required data-bato-onboarding-required="true" id="explorer-phone" type="tel" autoComplete="tel" inputMode="tel" dir="ltr" value={phone} onChange={e => setPhone(e.target.value)} placeholder={(branch ? branch==="Kuwait" : location==="kuwait")?"+965 …":"+971 …"}
                   className="w-full rounded-xl border px-3.5 py-3 text-sm text-[#333435] outline-none"
                   style={{ borderColor: "rgba(196,170,139,0.25)", background: "#fff" }} />
               </div>
             </div>
             <CTAButton label={t("Continue", "متابعة")} onClick={next} />
-            <button onClick={next} className="w-full py-2.5 text-xs text-[#7c8689] mt-1">{t("I'll add this later", "سأضيف هذا لاحقاً")}</button>
+            {!apiMode && <button onClick={next} className="w-full py-2.5 text-xs text-[#7c8689] mt-1">{t("I'll add this later", "سأضيف هذا لاحقاً")}</button>}
           </div>
         );
 
