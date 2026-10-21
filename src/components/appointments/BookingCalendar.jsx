@@ -55,7 +55,8 @@ export default function BookingCalendar({
   appointmentType = "treatment",
   department = null,
   service = null,
-  onBookingSuccess
+  onBookingSuccess,
+  patientRequestMode = false
 }) {
   const submitBusy=useRef(false);
   const [requestError,setRequestError]=useState("");
@@ -87,7 +88,7 @@ export default function BookingCalendar({
   const canGoNext = viewMonth < new Date(windowEnd.getFullYear(), windowEnd.getMonth(), 1);
 
   useEffect(() => {
-    if (open && userEmail) {
+    if (open && userEmail && !patientRequestMode) {
       loadUserVIPStatus();
     }
   }, [open, userEmail]);
@@ -170,7 +171,50 @@ export default function BookingCalendar({
     else if (step === 2 && selectedTime) setStep(3);
   };
 
+  const [shareSummary, setShareSummary] = useState("");
+  const [sharing, setSharing] = useState(false);
+  const handlePatientRequest = async () => {
+    setRequestError("");
+    if (!resolvedDepartment || !selectedDate || !selectedTime) {
+      setRequestError("validation");
+      return;
+    }
+    const preferred = clinicDateTime(format(selectedDate, "yyyy-MM-dd"), selectedTime, currentLocation.id);
+    if (new Date(preferred).getTime() <= Date.now()) {
+      setRequestError("expired");
+      return;
+    }
+    const teamName = CARE_DEPARTMENTS.find(d => d.key === resolvedDepartment);
+    const message = [
+      "BATO appointment request (pending clinic confirmation)",
+      `Care team: ${teamName?.en || resolvedDepartment}`,
+      `Branch: ${currentLocation.name}`,
+      `Visit: ${appointmentType.replace(/_/g, " ")}`,
+      `Preferred date: ${format(selectedDate, "yyyy-MM-dd")}`,
+      `Preferred time: ${selectedTime} (clinic local time)`,
+      ...(notes.trim() ? [`Notes: ${notes.trim()}`] : []),
+    ].join("\n");
+    setShareSummary(message);
+    setSharing(true);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "BATO appointment request", text: message });
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(message);
+        toast.success(t("Request details copied. Send them to the clinic to request an appointment.", "تم نسخ تفاصيل الطلب. أرسلها للعيادة لطلب موعد."));
+      } else {
+        toast.info(t("Copy the request details below and send them to the clinic.", "انسخ تفاصيل الطلب أدناه وأرسلها للعيادة."));
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        console.error("Appointment request sharing failed", error);
+        toast.error(t("Unable to share. Copy the request below instead.", "تعذرت المشاركة. انسخ الطلب أدناه."));
+      }
+    } finally { setSharing(false); }
+  };
+
   const handleConfirmBooking = () => {
+    if (patientRequestMode) { void handlePatientRequest(); return; }
     if(submitBusy.current)return;
     setRequestError("");
     if (packageData && (packageData.status !== "active" || programCounts(packageData).remaining === 0)) {
@@ -194,6 +238,7 @@ export default function BookingCalendar({
 
   const handleReset = () => {
     setRequestError("");
+    setShareSummary("");
     setSelectedDate(null);
     setSelectedTime(null);
     setNotes('');
@@ -474,13 +519,21 @@ export default function BookingCalendar({
           ) : (
             <Button
               onClick={handleConfirmBooking}
-              disabled={bookAppointmentMutation.isPending || !resolvedDepartment || !userEmail}
+              disabled={sharing || bookAppointmentMutation.isPending || !resolvedDepartment || (!patientRequestMode && !userEmail)}
               className="bato-press flex-1 bg-[#3a2e1e] hover:bg-[#51412c] min-h-11 text-base"
             >
-              {bookAppointmentMutation.isPending ? t('Sending...', 'جارٍ الإرسال...') : t('Send Appointment Request', 'أرسل طلب الموعد')}
+              {sharing ? t('Opening share sheet…', 'فتح المشاركة…') : patientRequestMode ? t('Share appointment request', 'شارك طلب الموعد') : bookAppointmentMutation.isPending ? t('Sending...', 'جارٍ الإرسال...') : t('Send Appointment Request', 'أرسل طلب الموعد')}
             </Button>
           )}
         </div>
+        {patientRequestMode && shareSummary && <div className="rounded-lg border border-[#c4aa8b] bg-[#f9f8f6] p-3 space-y-2">
+          <p className="text-xs text-[#6D665D]">{t("Not booked yet. Share these details with the clinic for confirmation.", "لم يتم الحجز بعد. شارك هذه التفاصيل مع العيادة للتأكيد.")}</p>
+          <pre className="whitespace-pre-wrap break-words text-xs text-[#3a2e1e]">{shareSummary}</pre>
+          <Button variant="outline" className="min-h-10" onClick={async () => {
+            try { await navigator.clipboard.writeText(shareSummary); toast.success(t("Copied", "تم النسخ")); }
+            catch { toast.error(t("Please copy the text manually.", "يرجى نسخ النص يدوياً.")); }
+          }}>{t("Copy request details", "نسخ تفاصيل الطلب")}</Button>
+        </div>}
         {requestError && <p role="alert" className="text-sm text-red-700 flex-shrink-0 pt-1">{requestError === "expired" ? t("This preferred time has passed. Choose a new date and time.","انتهى الوقت المفضل. اختر تاريخاً ووقتاً جديدين.") : t("Failed to send your request. Your selections are kept here; please try again.", "تعذر إرسال طلبك. اختياراتك محفوظة هنا؛ حاول مرة أخرى.")}</p>}
       </DialogContent>
     </Dialog>

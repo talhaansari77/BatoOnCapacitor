@@ -27,6 +27,7 @@ import {Dialog,DialogContent,DialogTitle,DialogDescription} from "@/components/u
 import { toast } from "sonner";
 import { useLocation } from "../components/LocationContext";
 import BookingCalendar from "../components/appointments/BookingCalendar";
+import BookingCalendarTimeRanges from "../components/appointments/BookingCalendarTimeRanges";
 
 // Appointment workflow status codes supplied by the clinic (0–5).
 const PATIENT_STATUS = {
@@ -76,7 +77,6 @@ function patientAppointmentCategory(appointment, now = Date.now()) {
 }
 
 function PatientAppointmentCard({ appointment, t, isRTL, onReschedule }) {
-  const [expanded, setExpanded] = useState(false);
   const code = String(appointment.raw_status ?? '');
   const config = PATIENT_STATUS[code] || {
     label: appointment.status !== 'unknown' ? appointment.status.replace(/_/g, ' ') : t('Status unavailable', 'الحالة غير متاحة'),
@@ -116,24 +116,6 @@ function PatientAppointmentCard({ appointment, t, isRTL, onReschedule }) {
         {t('Request a change', 'طلب تعديل')}
       </button>
     </div>
-    {/* <button type="button" onClick={() => setExpanded(v => !v)} aria-expanded={expanded}
-      className="w-full flex items-center justify-between rounded-xl border border-[#DED6CA] bg-transparent px-4 py-3 text-sm font-medium text-[#332A20] hover:bg-white/40">
-      <span>{expanded ? t('Hide appointment details', 'إخفاء تفاصيل الموعد') : t('View appointment details', 'عرض تفاصيل الموعد')}</span>
-      {expanded ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
-    </button> */}
-    {expanded && <div className="rounded-xl border border-[#DED6CA] bg-white/50 p-4 space-y-2 text-sm text-[#4C453D]">
-      {appointment.appointment_number && <p>{t('Appointment number', 'رقم الموعد')}: {appointment.appointment_number}</p>}
-      {appointment.department_name && <p>{t('Department', 'القسم')}: <CareText value={appointment.department_name}/></p>}
-      {appointment.section_name && <p>{t('Section', 'التخصص')}: <CareText value={appointment.section_name}/></p>}
-      {appointment.sessions.length > 0 && <div className="space-y-2">
-        <p className="font-semibold">{t('Sessions', 'الجلسات')} ({appointment.sessions.length})</p>
-        {appointment.sessions.map((session, index) => <div key={session.id ?? index} className="rounded-xl bg-[#F7F4F0] p-3">
-          <p>{t('Session', 'الجلسة')} {index + 1}</p>
-          {(session.appointment_start_date || session.date || session.session_date) && <p>{session.appointment_start_date || session.date || session.session_date}</p>}
-          {(session.appointment_start_time || session.time12 || session.time) && <p>{session.appointment_start_time || session.time12 || session.time}</p>}
-        </div>)}
-      </div>}
-    </div>}
   </article>;
 }
 
@@ -332,10 +314,10 @@ export default function ClinicAppointments() {
   const nextAppointment = selection.primary;
   const patientSorted = [...appointments].sort((a,b) => (Date.parse(b.appointment_date) || 0) - (Date.parse(a.appointment_date) || 0));
   const patientFilters = [
-    {key:'all',label:t('All','الكل')},
     {key:'upcoming',label:t('Upcoming','القادمة')},
-    {key:'history',label:t('History','السابقة')},
     {key:'confirmed',label:t('Confirmed','المؤكدة')},
+    {key:'all',label:t('All','الكل')},
+    {key:'history',label:t('History','السابقة')},
   ];
   const matchesPatientFilter = (apt, filter) => filter === 'all' ||
     (filter === 'confirmed' ? ['1', 'confirmed'].includes(apt.status) : patientAppointmentCategory(apt) === filter);
@@ -358,6 +340,17 @@ export default function ClinicAppointments() {
           <h1 className="text-2xl font-bold text-[#333435]">{t("Appointments", "المواعيد")}</h1>
           <p className="text-xs text-[#7c8689]">{t("Manage your clinic visits", "إدارة زياراتك للعيادة")}</p>
         </div>
+
+        {/* Patient request CTA: reuses the original BookingCalendar with care-team selection. */}
+        {isPatientSession && (
+          <section className="rounded-3xl border border-white/80 bg-white p-4 shadow-sm space-y-3">
+            <p className="text-sm font-semibold text-[#333435]">{t("Request a new appointment", "اطلب موعداً جديداً")}</p>
+            <p className="text-xs text-[#7c8689]">{t("Choose a care team and your preferred date and time. The clinic must confirm your request.", "اختر فريق الرعاية والتاريخ والوقت المفضلين. يجب أن تؤكد العيادة طلبك.")}</p>
+            <Button className="w-full rounded-xl bg-[#3a2e1e] text-white hover:bg-[#51412c]" onClick={() => {setBookingProgramId(null);setBookingType("consultation");setBookingDepartment(null);setShowBooking(true);}}>
+              <CalendarPlus className="h-4 w-4 mr-2" />{t("Request an appointment", "اطلب موعداً")}
+            </Button>
+          </section>
+        )}
 
         {selection.missing&&<p role="alert" className="rounded-xl bg-white p-4 text-sm">{t("That appointment is not available in your records.","هذا الموعد غير متاح في سجلاتك.")}</p>}
         {isPatientSession && <section className="space-y-3">
@@ -471,9 +464,13 @@ export default function ClinicAppointments() {
 
       {bookingProgramId&&showBooking&&(!packageQuery.isPending&&(packageQuery.isError||!bookingProgram))&&<div role="alert" className="rounded-xl bg-white p-4 m-4"><p>{t("We couldn't load this active package. Please check with your team.","تعذر تحميل هذه الباقة النشطة. تحقق من فريقك.")}</p><button className="underline py-3" onClick={()=>{setShowBooking(false);setBookingProgramId(null);}}>{t("Close","إغلاق")}</button></div>}
       {user && (!bookingProgramId || bookingProgram) && (
-        <BookingCalendar open={showBooking} onClose={() => setShowBooking(false)} userEmail={user.email}
+        <>{isPatientSession ? <BookingCalendarTimeRanges open={showBooking} onClose={() => setShowBooking(false)} userEmail={user.email}
           appointmentType={bookingType} department={bookingProgram ? programDepartment(bookingProgram) : bookingDepartment} packageData={bookingProgram}
-          onBookingSuccess={() => { queryClient.invalidateQueries({ queryKey: ["appointments"] }); setShowBooking(false);  }} />
+          patientRequestMode={isPatientSession}
+          onBookingSuccess={() => { queryClient.invalidateQueries({ queryKey: ["appointments"] }); setShowBooking(false);  }} /> : <BookingCalendar open={showBooking} onClose={() => setShowBooking(false)} userEmail={user.email}
+          appointmentType={bookingType} department={bookingProgram ? programDepartment(bookingProgram) : bookingDepartment} packageData={bookingProgram}
+          patientRequestMode={false}
+          onBookingSuccess={() => { queryClient.invalidateQueries({ queryKey: ["appointments"] }); setShowBooking(false); }} />}</>
       )}
     </div>
   );
