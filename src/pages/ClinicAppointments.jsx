@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { useLocation } from "../components/LocationContext";
 import BookingCalendar from "../components/appointments/BookingCalendar";
 import BookingCalendarTimeRanges from "../components/appointments/BookingCalendarTimeRanges";
+import RescheduleCalendarWizard from "../components/appointments/RescheduleCalendarWizard";
 
 // Appointment workflow status codes supplied by the clinic (0–5).
 const PATIENT_STATUS = {
@@ -458,7 +459,7 @@ export default function ClinicAppointments() {
       {/* Modals */}
       <AnimatePresence>
         {showReschedule && selectedAppointment && (
-        <RescheduleModal appointment={selectedAppointment} userEmail={user?.email} onClose={() => setShowReschedule(false)} t={t} />
+        <RescheduleCalendarWizard appointment={selectedAppointment} userEmail={user?.email} onClose={() => setShowReschedule(false)} t={t} />
         )}
       </AnimatePresence>
 
