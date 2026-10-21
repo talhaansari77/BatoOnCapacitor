@@ -1,4 +1,4 @@
-import { getAllPatientAppointments, readPatientAuth } from "@/native/patientApi";
+import { getAllPatientAppointments, getPatientAppointmentRequests, readPatientAuth } from "@/native/patientApi";
 import BatoEmptyState from "@/components/ui/BatoEmptyState";
 import CustomerLoadState from "@/components/CustomerLoadState";
 import {rescheduleRequestContent} from "@/lib/rescheduleRequest";
@@ -307,6 +307,20 @@ export default function ClinicAppointments() {
     enabled: !!user, refetchOnMount: "always", refetchInterval:60000,
   });
 
+  const { data: patientRequests = [], isPending: requestsPending, isError: requestsError } = useQuery({
+    queryKey: ['patient-appointment-requests'],
+    queryFn: async () => {
+      const all = [];
+      for (let page = 1; page <= 50; page++) {
+        const batch = await getPatientAppointmentRequests({ page, limit: 20 });
+        all.push(...batch);
+        if (batch.length < 20) break;
+      }
+      return all;
+    },
+    enabled: isPatientSession, refetchOnMount: 'always', refetchInterval: 60000,
+  });
+
   const packageQuery=useQuery({queryKey:["bookingPrograms",user?.email],queryFn:()=>base44.entities.Package.filter({client_email:user.email}),enabled:!!user && !isPatientSession});
   const bookingProgram=bookingProgramId?packageQuery.data?.find(p=>p.id===bookingProgramId&&p.client_email===user?.email&&p.status==="active"):null;
 
@@ -352,6 +366,32 @@ export default function ClinicAppointments() {
             </Button>
           </section>
         )}
+
+        {isPatientSession && <section className="bg-white rounded-2xl shadow-sm border border-[#eeebe6] p-4 space-y-3">
+          <h2 className="bato-section-title">{t('My Appointment Requests', 'طلبات المواعيد')}</h2>
+          {requestsPending ? <p className="text-sm text-[#7c8689]">{t('Loading requests…', 'جارٍ تحميل الطلبات…')}</p>
+            : requestsError ? <p role="alert" className="text-sm text-red-700">{t('Could not load appointment requests. Please try again.', 'تعذر تحميل الطلبات.')}</p>
+            : !patientRequests.length ? <p className="text-sm text-[#7c8689]">{t('No appointment requests submitted yet.', 'لم يتم إرسال طلبات مواعيد بعد.')}</p>
+            : patientRequests.map((request, index) => {
+              const slot = request.preferred_slot || request.slot || {};
+              const status = String(request.status || 'pending').toLowerCase();
+              const style = status === 'pending' ? {background:'#FFF2D9',color:'#91600F'}
+                : status === 'confirmed' || status === 'approved' ? {background:'#E5F4EF',color:'#197556'}
+                : status === 'cancelled' || status === 'rejected' ? {background:'#FDE9E7',color:'#B44639'}
+                : {background:'#E9EEFF',color:'#3755D9'};
+              const date = String(request.date || request.preferred_date || '').slice(0, 10);
+              const range = request.preferred_slot_label || slot.label || slot.name || request.slot_label || '';
+              return <div key={request.id ?? index} className="rounded-2xl border border-[#eeebe6] bg-[#f9f8f6] p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-sm font-semibold text-[#3a2e1e]">{request.category || request.category_name || t('Appointment request','طلب موعد')}</span>
+                  <span className="text-xs font-semibold rounded-full px-2.5 py-1 capitalize" style={style}>{status.replace(/_/g,' ')}</span>
+                </div>
+                <p className="text-sm text-[#333435]">{date}{range ? ` · ${range}` : ''}</p>
+                {request.note && <p className="text-xs text-[#7c8689]">{request.note}</p>}
+                <p className="text-xs text-[#7c8689]">{t('Pending clinic confirmation unless stated otherwise.', 'بانتظار تأكيد العيادة ما لم يذكر خلاف ذلك.')}</p>
+              </div>;
+            })}
+        </section>}
 
         {selection.missing&&<p role="alert" className="rounded-xl bg-white p-4 text-sm">{t("That appointment is not available in your records.","هذا الموعد غير متاح في سجلاتك.")}</p>}
         {isPatientSession && <section className="space-y-3">

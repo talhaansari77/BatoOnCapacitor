@@ -105,3 +105,44 @@ export async function getPatientReportDetail(reportToken) {
   }
   return getPatientJson(`/patient/reports/${encodeURIComponent(reportToken)}`);
 }
+
+
+/** Patient appointment-request APIs. Do not use the staff endpoints. */
+export async function getPatientPreferredSlots() {
+  const session = readPatientAuth();
+  if (!session?.token) throw new Error('Please sign in to view preferred times.');
+  const payload = await patientHttpJson(`${PATIENT_API_BASE_URL}/api/v1/patient/preferred-slots`, { token: session.token });
+  const data = payload?.data;
+  const slots = Array.isArray(data) ? data : Array.isArray(data?.slots) ? data.slots
+    : Array.isArray(data?.preferred_slots) ? data.preferred_slots : Array.isArray(data?.data) ? data.data : null;
+  if (!slots) throw new Error('Unexpected preferred slots response.');
+  return slots.filter(s => s && s.is_active !== false && s.is_active !== 0 && s.is_active !== '0');
+}
+
+export async function submitPatientAppointmentRequest({ category, category_id, date, preferred_slot_id, note = '' }) {
+  const session = readPatientAuth();
+  if (!session?.token) throw new Error('Please sign in to request an appointment.');
+  if (!category || !/^\d{4}-\d{2}-\d{2}$/.test(date || '') || !Number.isInteger(Number(preferred_slot_id)) || Number(preferred_slot_id) < 1) {
+    throw new Error('Please choose a care team, date and preferred time.');
+  }
+  const body = { category, date, preferred_slot_id: Number(preferred_slot_id), note: note.trim() };
+  if (category_id != null && Number.isInteger(Number(category_id))) body.category_id = Number(category_id);
+  const payload = await patientHttpJson(`${PATIENT_API_BASE_URL}/api/v1/patient/appointment-requests`, {
+    method: 'POST', token: session.token, body,
+  });
+  if (payload?.success === false) throw new Error(payload.message || 'Unable to submit appointment request.');
+  return payload?.data ?? payload;
+}
+
+export async function getPatientAppointmentRequests({ page = 1, limit = 20 } = {}) {
+  const session = readPatientAuth();
+  if (!session?.token) throw new Error('Please sign in to view your requests.');
+  const query = new URLSearchParams({ page: String(page), limit: String(limit) });
+  const payload = await patientHttpJson(`${PATIENT_API_BASE_URL}/api/v1/patient/appointment-requests?${query}`, { token: session.token });
+  const data = payload?.data;
+  const rows = Array.isArray(data) ? data : Array.isArray(data?.requests) ? data.requests
+    : Array.isArray(data?.appointment_requests) ? data.appointment_requests
+    : Array.isArray(data?.items) ? data.items : Array.isArray(data?.data) ? data.data : null;
+  if (!rows) throw new Error('Unexpected appointment requests response.');
+  return rows;
+}

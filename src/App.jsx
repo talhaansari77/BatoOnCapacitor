@@ -35,6 +35,7 @@ import SwitchAccount from './pages/SwitchAccount';
 import { useLocation, Navigate } from 'react-router-dom';
 import { hasStandaloneSession, isStandaloneBuild, standaloneOnboardingComplete } from './test-mode/previewClient';
 import SignIn from './pages/SignIn';
+import { readPatientAuth } from './native/patientApi';
 import StandaloneErrorBoundary from './native/StandaloneErrorBoundary';
 import Welcome from './pages/Welcome';
 import { LocationProvider } from './components/LocationContext';
@@ -63,7 +64,7 @@ const AuthenticatedApp = () => {
   }
 
   // Handle authentication errors
-  if (authError) {
+  if (authError && !readPatientAuth()) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
@@ -103,6 +104,7 @@ const AuthenticatedApp = () => {
 
 function AppContent() {
   const location = useLocation();
+  const { isAuthenticated, isLoadingAuth, isLoadingPublicSettings } = useAuth();
   // Standalone entry begins at Sign In; retain existing session and onboarding routing.
   if (isStandaloneBuild) {
     const path = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
@@ -113,8 +115,14 @@ function AppContent() {
     if (path !== "/onboarding" && !standaloneOnboardingComplete()) return <Navigate to="/Onboarding" replace />;
     return <AuthenticatedApp />;
   }
-  // Account sign-in must remain reachable after logout, outside the auth gate.
-  return location.pathname === '/SwitchAccount' ? <SwitchAccount /> : <AuthenticatedApp />;
+  // Web and preview routes must not render private screens without a valid session.
+  // A patient JWT and a Base44 session are separate, supported login methods.
+  const path = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+  if (['/signin', '/login', '/demosignin'].includes(path)) return <SignIn />;
+  if (path === '/switchaccount') return <SwitchAccount />;
+  if (isLoadingAuth || isLoadingPublicSettings) return <AuthenticatedApp />;
+  if (!readPatientAuth() && !isAuthenticated) return <Navigate to="/SignIn" replace />;
+  return <AuthenticatedApp />;
 }
 
 function App() {

@@ -24,6 +24,7 @@ import { clinicDateTime, clinicToday } from "@/lib/appointments";
 import { toast } from "sonner";
 import { CARE_DEPARTMENTS, resolveBookingDepartment } from "@/lib/serviceFlow";
 import CareText from "@/components/CareText";
+import { getPatientPreferredSlots, submitPatientAppointmentRequest } from "@/native/patientApi";
 
 // The same identifiers used by the existing Request a Change form.
 const PREFERRED_RANGES = [
@@ -179,45 +180,52 @@ export default function BookingCalendarTimeRanges({
 
   const [shareSummary, setShareSummary] = useState("");
   const [sharing, setSharing] = useState(false);
+  const [remoteSlots, setRemoteSlots] = useState([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState('');
+  useEffect(() => {
+    if (!open || !patientRequestMode) return;
+    let active = true;
+    setSlotsLoading(true); setSlotsError(''); setRemoteSlots([]); setSelectedTime(null);
+    getPatientPreferredSlots().then(slots => {
+      if (active) setRemoteSlots(slots);
+    }).catch(error => { if (active) setSlotsError(error.message || 'Unable to load preferred times.'); })
+      .finally(() => { if (active) setSlotsLoading(false); });
+    return () => { active = false; };
+  }, [open, patientRequestMode]);
+  const slotOptions = patientRequestMode ? remoteSlots.map(slot => ({
+    value: String(slot.id ?? slot.slot_id ?? ''),
+    en: slot.name || slot.label || 'Preferred time',
+    ar: slot.name_ar || slot.label_ar || slot.name || slot.label || 'Preferred time',
+    enTime: slot.label && slot.label !== slot.name ? slot.label : [slot.start_time, slot.end_time].filter(Boolean).join(' – '),
+    arTime: slot.label_ar || (slot.label && slot.label !== slot.name ? slot.label : [slot.start_time, slot.end_time].filter(Boolean).join(' – ')),
+  })).filter(slot => /^\d+$/.test(slot.value) && Number(slot.value) > 0) : PREFERRED_RANGES;
+  const chosenSlot = slotOptions.find(slot => slot.value === selectedTime);
+  const chosenSlotLabel = chosenSlot ? `${isRTL ? chosenSlot.ar : chosenSlot.en}${chosenSlot.enTime ? ` (${isRTL ? chosenSlot.arTime : chosenSlot.enTime})` : ''}` : '';
   const handlePatientRequest = async () => {
-    setRequestError("");
-    if (!resolvedDepartment || !selectedDate || !selectedTime) {
-      setRequestError("validation");
-      return;
+    setRequestError('');
+    if (!resolvedDepartment || !selectedDate || !chosenSlot || !inWindow(selectedDate)) {
+      setRequestError('validation'); return;
     }
-    // A range is a preference, not a precise timestamp or a confirmed slot.
-    // Dates are restricted to tomorrow through the next 30 days above.
-    if (!PREFERRED_RANGES.some(r => r.value === selectedTime) || !inWindow(selectedDate)) {
-      setRequestError("validation");
-      return;
-    }
-    const teamName = CARE_DEPARTMENTS.find(d => d.key === resolvedDepartment);
-    const message = [
-      "BATO appointment request (pending clinic confirmation)",
-      `Care team: ${teamName?.en || resolvedDepartment}`,
-      `Branch: ${currentLocation.name}`,
-      `Visit: ${appointmentType.replace(/_/g, " ")}`,
-      `Preferred date: ${format(selectedDate, "yyyy-MM-dd")}`,
-      `Preferred time range: ${rangeLabel(selectedTime, false)} (clinic local time)`,
-      ...(notes.trim() ? [`Notes: ${notes.trim()}`] : []),
-    ].join("\n");
-    setShareSummary(message);
-    setSharing(true);
+    const team = CARE_DEPARTMENTS.find(d => d.key === resolvedDepartment);
+    if (submitBusy.current) return;
+    submitBusy.current = true; setSharing(true);
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "BATO appointment request", text: message });
-      } else if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(message);
-        toast.success(t("Request details copied. Send them to the clinic to request an appointment.", "تم نسخ تفاصيل الطلب. أرسلها للعيادة لطلب موعد."));
-      } else {
-        toast.info(t("Copy the request details below and send them to the clinic.", "انسخ تفاصيل الطلب أدناه وأرسلها للعيادة."));
-      }
+      // category_id is intentionally omitted: the provided patient API documentation
+      // defines no care-team/category ID lookup. Verify whether category alone is accepted.
+      await submitPatientAppointmentRequest({
+        category: team?.en || resolvedDepartment,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        preferred_slot_id: Number(chosenSlot.value),
+        note: notes,
+      });
+      queryClient.invalidateQueries({ queryKey: ['patient-appointment-requests'] });
+      toast.success(t('Appointment request sent. The clinic will confirm availability.', 'تم إرسال طلب الموعد. ستؤكد العيادة التوفر.'));
+      handleReset(); onClose(); onBookingSuccess?.();
     } catch (error) {
-      if (error?.name !== "AbortError") {
-        console.error("Appointment request sharing failed", error);
-        toast.error(t("Unable to share. Copy the request below instead.", "تعذرت المشاركة. انسخ الطلب أدناه."));
-      }
-    } finally { setSharing(false); }
+      console.error('Patient appointment request failed', error);
+      setRequestError(error.message || 'save');
+    } finally { submitBusy.current = false; setSharing(false); }
   };
 
   const handleConfirmBooking = () => {
@@ -296,7 +304,7 @@ export default function BookingCalendarTimeRanges({
             <span className="text-[#7c8689]">{t("Branch:", "الفرع:")} {isRTL ? currentLocation.nameAr : currentLocation.name}</span>
             {selectedDate && (
               <span className="font-medium text-[#3a2e1e]">
-                {dateLabel(selectedDate, "d MMM yyyy")}{selectedTime ? ` · ${rangeLabel(selectedTime, isRTL)}` : ""}
+                {dateLabel(selectedDate, "d MMM yyyy")}{selectedTime ? ` · ${patientRequestMode ? chosenSlotLabel : rangeLabel(selectedTime, isRTL)}` : ""}
               </span>
             )}
           </div>
@@ -435,7 +443,10 @@ export default function BookingCalendarTimeRanges({
               <h3 className="font-semibold text-[#3a2e1e] mb-2">{t("Preferred Time Range (clinic local time)", "الفترة الزمنية المفضلة (بتوقيت العيادة)")}</h3>
               <p className="text-sm text-[#7c8689] mb-4">{t("Choose a preferred period. The clinic will confirm an exact time.", "اختر الفترة المفضلة. ستؤكد العيادة الوقت المحدد.")}</p>
               <div className="flex flex-col gap-2" role="group" aria-label={t("Preferred time range", "الفترة الزمنية المفضلة")}>
-                {PREFERRED_RANGES.map((range) => (
+                {slotsLoading && <p className="text-sm text-[#7c8689]">{t('Loading preferred times…', 'جارٍ تحميل الفترات المتاحة…')}</p>}
+                {slotsError && <p role="alert" className="text-sm text-red-700">{slotsError}</p>}
+                {!slotsLoading && !slotsError && !slotOptions.length && <p className="text-sm text-[#7c8689]">{t('No preferred times are available.', 'لا توجد فترات متاحة.')}</p>}
+                {slotOptions.map((range) => (
                   <button
                     type="button"
                     key={range.value}
@@ -466,7 +477,7 @@ export default function BookingCalendarTimeRanges({
                     <div>
                       <p className="font-semibold text-gray-900 mb-1">{t("Appointment Details", "تفاصيل طلب الموعد")}</p>
                       <p className="text-sm text-gray-700">
-                        {dateLabel(selectedDate, "EEEE, MMMM d, yyyy")} · {rangeLabel(selectedTime, isRTL)}
+                        {dateLabel(selectedDate, "EEEE, MMMM d, yyyy")} · {patientRequestMode ? chosenSlotLabel : rangeLabel(selectedTime, isRTL)}
                       </p>
                       <p className="text-sm text-gray-600 mt-1">
                         {t("Type:", "نوع الموعد:")} {isRTL ? ({ treatment: "علاج", consultation: "استشارة", follow_up: "متابعة", photo_session: "تصوير", check_up: "فحص" }[appointmentType] || "موعد") : appointmentType.replace(/_/g, " ")}
@@ -534,19 +545,11 @@ export default function BookingCalendarTimeRanges({
               disabled={sharing || bookAppointmentMutation.isPending || !resolvedDepartment || (!patientRequestMode && !userEmail)}
               className="bato-press flex-1 bg-[#3a2e1e] hover:bg-[#51412c] min-h-11 text-base"
             >
-              {sharing ? t('Opening share sheet…', 'فتح المشاركة…') : patientRequestMode ? t('Share appointment request', 'شارك طلب الموعد') : bookAppointmentMutation.isPending ? t('Sending...', 'جارٍ الإرسال...') : t('Send Appointment Request', 'أرسل طلب الموعد')}
+              {sharing ? t('Submitting…', 'جارٍ الإرسال…') : patientRequestMode ? t('Submit appointment request', 'إرسال طلب الموعد') : bookAppointmentMutation.isPending ? t('Sending...', 'جارٍ الإرسال...') : t('Send Appointment Request', 'أرسل طلب الموعد')}
             </Button>
           )}
         </div>
-        {patientRequestMode && shareSummary && <div className="rounded-lg border border-[#c4aa8b] bg-[#f9f8f6] p-3 space-y-2">
-          <p className="text-xs text-[#6D665D]">{t("Not booked yet. Share these details with the clinic for confirmation.", "لم يتم الحجز بعد. شارك هذه التفاصيل مع العيادة للتأكيد.")}</p>
-          <pre className="whitespace-pre-wrap break-words text-xs text-[#3a2e1e]">{shareSummary}</pre>
-          <Button variant="outline" className="min-h-10" onClick={async () => {
-            try { await navigator.clipboard.writeText(shareSummary); toast.success(t("Copied", "تم النسخ")); }
-            catch { toast.error(t("Please copy the text manually.", "يرجى نسخ النص يدوياً.")); }
-          }}>{t("Copy request details", "نسخ تفاصيل الطلب")}</Button>
-        </div>}
-        {requestError && <p role="alert" className="text-sm text-red-700 flex-shrink-0 pt-1">{requestError === "expired" ? t("This preferred time has passed. Choose a new date and time.","انتهى الوقت المفضل. اختر تاريخاً ووقتاً جديدين.") : t("Failed to send your request. Your selections are kept here; please try again.", "تعذر إرسال طلبك. اختياراتك محفوظة هنا؛ حاول مرة أخرى.")}</p>}
+        {requestError && <p role="alert" className="text-sm text-red-700 flex-shrink-0 pt-1">{requestError === "expired" ? t("This preferred time has passed. Choose a new date and time.","انتهى الوقت المفضل. اختر تاريخاً ووقتاً جديدين.") : requestError === "validation" ? t("Choose a team, date and preferred time range.", "اختر فريقاً وتاريخاً وفترة زمنية.") : requestError === "save" ? t("Failed to send your request. Please retry.", "تعذر إرسال طلبك. أعد المحاولة.") : requestError}</p>}
       </DialogContent>
     </Dialog>
   );
