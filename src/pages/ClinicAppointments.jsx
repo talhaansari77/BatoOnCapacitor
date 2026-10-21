@@ -1,4 +1,4 @@
-import { getPatientAppointments, readPatientAuth } from "@/native/patientApi";
+import { getAllPatientAppointments, readPatientAuth } from "@/native/patientApi";
 import BatoEmptyState from "@/components/ui/BatoEmptyState";
 import CustomerLoadState from "@/components/CustomerLoadState";
 import {rescheduleRequestContent} from "@/lib/rescheduleRequest";
@@ -28,28 +28,113 @@ import { toast } from "sonner";
 import { useLocation } from "../components/LocationContext";
 import BookingCalendar from "../components/appointments/BookingCalendar";
 
-/** Translate backend fields to the existing clinic appointment card shape. */
+// Appointment workflow status codes supplied by the clinic (0–5).
+const PATIENT_STATUS = {
+  '0': { label: 'Draft', ar: 'مسودة', background: '#E9EEFF', foreground: '#3755D9', border: '#BAC7FF', icon: 'draft' },
+  '1': { label: 'Confirm', ar: 'تأكيد', background: '#E5F4EF', foreground: '#197556', border: '#ABDCCB', icon: 'confirm' },
+  '2': { label: 'Waiting', ar: 'انتظار', background: '#FFF2D9', foreground: '#91600F', border: '#F1D192', icon: 'waiting' },
+  '3': { label: 'InConsultation', ar: 'قيد الاستشارة', background: '#E9E9FA', foreground: '#6551A2', border: '#C9BCEB', icon: 'consultation' },
+  '4': { label: 'Not Paid', ar: 'غير مدفوع', background: '#FDE9E7', foreground: '#B44639', border: '#F4BDB5', icon: 'unpaid' },
+  '5': { label: 'Paid', ar: 'مدفوع', background: '#E3F2F8', foreground: '#146A87', border: '#ACD8E9', icon: 'paid' },
+};
+
+/** Map API appointment data into the original customer-care presentation. */
 function mapClinicPatientAppointment(item) {
-  const date = String(item.appointment_start_date || item.date || '');
+  const date = String(item.appointment_start_date || item.date || '').slice(0, 10);
   const time = String(item.appointment_start_time || item.time12 || '');
   const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  const h24 = time.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
   const rawTime = String(item.time24 || '').match(/^(\d{2}):(\d{2})/);
-  const hour = match ? Number(match[1]) % 12 + (match[3].toUpperCase() === 'PM' ? 12 : 0) : rawTime ? Number(rawTime[1]) : 0;
-  const minute = match ? Number(match[2]) : rawTime ? Number(rawTime[2]) : 0;
-  const localDate = /^\d{4}-\d{2}-\d{2}$/.test(date)
-    ? `${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00+03:00`
-    : '';
+  const hour = match ? Number(match[1]) % 12 + (match[3].toUpperCase() === 'PM' ? 12 : 0)
+    : h24 ? Number(h24[1]) : rawTime ? Number(rawTime[1]) : 0;
+  const minute = match ? Number(match[2]) : h24 ? Number(h24[2]) : rawTime ? Number(rawTime[2]) : 0;
+  const localDate = /^\d{4}-\d{2}-\d{2}$/.test(date) && hour < 24 && minute < 60
+    ? `${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00+03:00` : '';
   const timestamp = localDate ? new Date(localDate) : new Date(NaN);
+  const rawStatus = item.appointment_status ?? item.status ?? null;
+  const normalizedStatus = typeof rawStatus === 'string' ? rawStatus.toLowerCase().trim() : '';
   return {
+    ...item,
     id: String(item.id),
     appointment_date: Number.isNaN(timestamp.getTime()) ? '' : timestamp.toISOString(),
     timezone: 'Asia/Kuwait',
     type: item.service_name || item.section_name || 'appointment',
     service_name: item.service_name || '',
     specialist_name: item.doctor_name || '',
-    // Status numbers aren't documented: never assign an invented status.
-    status: 'unknown',
+    raw_status: rawStatus,
+    status: PATIENT_STATUS[String(rawStatus)] ? String(rawStatus)
+      : ['requested','scheduled','confirmed','completed','cancelled','rescheduled'].includes(normalizedStatus)
+        ? normalizedStatus : 'unknown',
+    sessions: Array.isArray(item.sessions) ? item.sessions : [],
   };
+}
+
+function patientAppointmentCategory(appointment, now = Date.now()) {
+  if (['completed', 'cancelled'].includes(appointment.status)) return 'history';
+  const time = Date.parse(appointment.appointment_date);
+  return Number.isFinite(time) ? (time >= now ? 'upcoming' : 'history') : 'unscheduled';
+}
+
+function PatientAppointmentCard({ appointment, t, isRTL, onReschedule }) {
+  const [expanded, setExpanded] = useState(false);
+  const code = String(appointment.raw_status ?? '');
+  const config = PATIENT_STATUS[code] || {
+    label: appointment.status !== 'unknown' ? appointment.status.replace(/_/g, ' ') : t('Status unavailable', 'الحالة غير متاحة'),
+    ar: null, background: '#EEECE8', foreground: '#625749', border: '#DCD4CA', icon: 'unknown'
+  };
+  const label = isRTL && config.ar ? config.ar : config.label;
+  const hasDate = Boolean(appointment.appointment_date);
+  const note = code === '0' ? t('Your appointment is still a draft.', 'موعدك لا يزال مسودة.')
+    : code === '1' ? t('Your appointment has been confirmed by the clinic.', 'تم تأكيد موعدك من العيادة.')
+    : code === '2' ? t('Your appointment is waiting for the next step.', 'موعدك في انتظار الخطوة التالية.')
+    : code === '3' ? t('Your consultation is in progress.', 'استشارتك جارية الآن.')
+    : code === '4' ? t('Payment is still pending for this appointment.', 'الدفع لا يزال معلقاً لهذا الموعد.')
+    : code === '5' ? t('Payment has been recorded for this appointment.', 'تم تسجيل الدفع لهذا الموعد.')
+    : t('View your appointment details below.', 'اطلع على تفاصيل موعدك أدناه.');
+
+  return <article className="rounded-[24px] border border-[#D2CDC5] bg-[#EEEBE6] shadow-[0_5px_14px_rgba(38,32,24,0.10)] p-5 space-y-3">
+    <p className="text-xs text-[#6D665D]"><CareText value={appointment.section_name || appointment.department_name || appointment.service_name || appointment.type} /></p>
+    <div className="flex items-center gap-2 flex-wrap">
+      <Clock className="w-5 h-5 shrink-0" style={{ color: config.foreground }} aria-hidden="true" />
+      <span className="font-semibold text-[15px] text-[#242424]">{label}</span>
+      <span className="text-xs rounded-full px-2.5 py-1 font-semibold border" style={{ color: config.foreground, background: config.background, borderColor: config.border }}>{label}</span>
+    </div>
+    <p className="font-semibold text-[15px] text-[#292929]">
+      {hasDate ? formatAppointment(appointment, 'EEEE, d MMM yyyy · h:mm a', { locale: isRTL ? ar : undefined }) : t('Date not available', 'التاريخ غير متاح')}
+    </p>
+    <p className="text-xs text-[#665F58]">{t('Clinic local time · Kuwait', 'توقيت العيادة المحلي · الكويت')}</p>
+    <p className="text-sm text-[#302B26] leading-6">{note}</p>
+    {appointment.service_name && <p className="text-xs text-[#61584E]">{t('Service', 'الخدمة')}: <CareText value={appointment.service_name}/></p>}
+    {appointment.specialist_name && <p className="text-xs text-[#61584E]">{t('Doctor', 'الطبيب')}: <CareText value={appointment.specialist_name}/></p>}
+    <div className="space-y-2">
+      <a href={careMessageUrl(appointment.department)} target="_blank" rel="noopener noreferrer"
+        className="block w-full text-start rounded-xl border border-[#DED6CA] px-4 py-3 text-sm text-[#302B26] hover:bg-white/40">
+        {t('Contact customer service', 'تواصل مع خدمة العملاء')}
+      </a>
+      <button type="button" onClick={onReschedule}
+        className="block w-full text-start rounded-xl border border-[#DED6CA] px-4 py-3 text-sm text-[#302B26] hover:bg-white/40">
+        {t('Request a change', 'طلب تعديل')}
+      </button>
+    </div>
+    {/* <button type="button" onClick={() => setExpanded(v => !v)} aria-expanded={expanded}
+      className="w-full flex items-center justify-between rounded-xl border border-[#DED6CA] bg-transparent px-4 py-3 text-sm font-medium text-[#332A20] hover:bg-white/40">
+      <span>{expanded ? t('Hide appointment details', 'إخفاء تفاصيل الموعد') : t('View appointment details', 'عرض تفاصيل الموعد')}</span>
+      {expanded ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
+    </button> */}
+    {expanded && <div className="rounded-xl border border-[#DED6CA] bg-white/50 p-4 space-y-2 text-sm text-[#4C453D]">
+      {appointment.appointment_number && <p>{t('Appointment number', 'رقم الموعد')}: {appointment.appointment_number}</p>}
+      {appointment.department_name && <p>{t('Department', 'القسم')}: <CareText value={appointment.department_name}/></p>}
+      {appointment.section_name && <p>{t('Section', 'التخصص')}: <CareText value={appointment.section_name}/></p>}
+      {appointment.sessions.length > 0 && <div className="space-y-2">
+        <p className="font-semibold">{t('Sessions', 'الجلسات')} ({appointment.sessions.length})</p>
+        {appointment.sessions.map((session, index) => <div key={session.id ?? index} className="rounded-xl bg-[#F7F4F0] p-3">
+          <p>{t('Session', 'الجلسة')} {index + 1}</p>
+          {(session.appointment_start_date || session.date || session.session_date) && <p>{session.appointment_start_date || session.date || session.session_date}</p>}
+          {(session.appointment_start_time || session.time12 || session.time) && <p>{session.appointment_start_time || session.time12 || session.time}</p>}
+        </div>)}
+      </div>}
+    </div>}
+  </article>;
 }
 
 const getStatusConfig = (t) => ({
@@ -206,6 +291,7 @@ export default function ClinicAppointments() {
   const [bookingDepartment, setBookingDepartment] = useState("general_consultation");
   const [showReschedule, setShowReschedule] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [patientFilter, setPatientFilter] = useState("all");
   const [showPast, setShowPast] = useState(() => Boolean(readPatientAuth()));
   const [historyLimit,setHistoryLimit] = useState(8);
   const [bookingProgramId, setBookingProgramId] = useState(null);
@@ -233,7 +319,7 @@ export default function ClinicAppointments() {
   const { data: appointments = [], isPending: appointmentsPending, isError: appointmentsError } = useQuery({
     queryKey: ["appointments", isPatientSession ? "patient-api" : user?.email],
     queryFn: () => isPatientSession
-      ? getPatientAppointments().then(items => items.map(mapClinicPatientAppointment))
+      ? getAllPatientAppointments().then(items => items.map(mapClinicPatientAppointment))
       : base44.entities.Appointment.filter({ client_email: user.email }, "-appointment_date"),
     enabled: !!user, refetchOnMount: "always", refetchInterval:60000,
   });
@@ -244,6 +330,17 @@ export default function ClinicAppointments() {
   const selection = appointmentSelection(appointments,searchParams.get("appointment"));
   const past = selection.history;
   const nextAppointment = selection.primary;
+  const patientSorted = [...appointments].sort((a,b) => (Date.parse(b.appointment_date) || 0) - (Date.parse(a.appointment_date) || 0));
+  const patientFilters = [
+    {key:'all',label:t('All','الكل')},
+    {key:'upcoming',label:t('Upcoming','القادمة')},
+    {key:'history',label:t('History','السابقة')},
+    {key:'confirmed',label:t('Confirmed','المؤكدة')},
+  ];
+  const matchesPatientFilter = (apt, filter) => filter === 'all' ||
+    (filter === 'confirmed' ? ['1', 'confirmed'].includes(apt.status) : patientAppointmentCategory(apt) === filter);
+  const filteredPatientAppointments = patientSorted.filter(apt => matchesPatientFilter(apt, patientFilter));
+
 
   const handleReschedule = (apt) => {
     setSelectedAppointment(apt);
@@ -263,12 +360,28 @@ export default function ClinicAppointments() {
         </div>
 
         {selection.missing&&<p role="alert" className="rounded-xl bg-white p-4 text-sm">{t("That appointment is not available in your records.","هذا الموعد غير متاح في سجلاتك.")}</p>}
-        {/* Next Appointment Hero */}
-        <UpcomingHero appointment={nextAppointment} onReschedule={() => nextAppointment && handleReschedule(nextAppointment)} onBook={() => {setBookingProgramId(null);setBookingType("consultation");setBookingDepartment(null);setShowBooking(true);}} t={t} STATUS_CONFIG={STATUS_CONFIG} />
+        {isPatientSession && <section className="space-y-3">
+          <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={t('Appointment filters','تصفية المواعيد')}>
+            {patientFilters.map(filter => <button key={filter.key} role="tab" type="button"
+              aria-selected={patientFilter === filter.key} onClick={() => setPatientFilter(filter.key)}
+              className="rounded-xl px-3 py-2 text-xs font-semibold whitespace-nowrap border shrink-0"
+              style={patientFilter === filter.key ? {background:'#3a2e1e',color:'#fff',borderColor:'#3a2e1e'} : {background:'#fff',color:'#3a2e1e',borderColor:'#c4aa8b55'}}>
+              {filter.label} ({appointments.filter(apt=>matchesPatientFilter(apt,filter.key)).length})
+            </button>)}
+          </div>
+          {filteredPatientAppointments.length ? filteredPatientAppointments.map(apt =>
+            <PatientAppointmentCard key={apt.id} appointment={apt} t={t} isRTL={isRTL} onReschedule={() => handleReschedule(apt)}/>)
+            : <div className="bg-white rounded-2xl p-5"><BatoEmptyState tone="plain"
+              title={t('No appointments in this category','لا توجد مواعيد في هذه الفئة')}
+              description={t('Try another filter to view your appointments.','جرّب تصفية أخرى لعرض مواعيدك.')} /></div>}
+        </section>}
 
-        {selection.unresolved.length>0&&<AppointmentCareCard appointment={selection.unresolved[0]} compact/>}
+        {/* Next Appointment Hero */}
+        {!isPatientSession && <UpcomingHero appointment={nextAppointment} onReschedule={() => nextAppointment && handleReschedule(nextAppointment)} onBook={() => {setBookingProgramId(null);setBookingType("consultation");setBookingDepartment(null);setShowBooking(true);}} t={t} STATUS_CONFIG={STATUS_CONFIG} />}
+
+        {!isPatientSession && selection.unresolved.length>0&&<AppointmentCareCard appointment={selection.unresolved[0]} compact/>}
         {/* Upcoming list (beyond first) */}
-        {selection.others.map(apt=><AppointmentCareCard key={apt.id} appointment={apt} compact onReschedule={()=>handleReschedule(apt)}/>)}
+        {!isPatientSession && selection.others.map(apt=><AppointmentCareCard key={apt.id} appointment={apt} compact onReschedule={()=>handleReschedule(apt)}/>)}
 
         {/* Book Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-[#eeebe6] p-4">
@@ -286,7 +399,7 @@ export default function ClinicAppointments() {
         </div>
 
         {/* Past Appointments */}
-        {past.length > 0 && (
+        {!isPatientSession && past.length > 0 && (
           <div className="bg-white rounded-2xl shadow-sm border border-[#eeebe6] overflow-hidden">
             <button aria-expanded={showPast} onClick={() => setShowPast(o => !o)} className="w-full flex items-center justify-between p-4 hover:bg-[#f9f8f6] transition-colors">
               <div className="flex items-center gap-3">

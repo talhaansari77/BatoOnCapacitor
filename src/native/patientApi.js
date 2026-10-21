@@ -41,17 +41,49 @@ export async function getPatientProfile() {
   return payload.data;
 }
 
-/** Load appointments using patient_code without its P- prefix (existing behavior). */
-export async function getPatientAppointments({ status = '', limit = 50, offset = 0 } = {}) {
+/** Read the logged-in patient's appointments, with no patient ID in the URL. */
+export async function getPatientAppointments({ status = '', session_status = '', limit = 50, offset = 0 } = {}) {
   const session = readPatientAuth();
   if (!session?.token) throw new Error('Please sign in to view appointments.');
-  const patient = await getPatientProfile();
-  const patientId = String(patient.patient_code ?? '').replace(/^P-/i, '');
-  if (!/^\d+$/.test(patientId)) throw new Error('Patient profile is missing a valid patient code.');
-  const params = new URLSearchParams({ status, limit: String(limit), offset: String(offset) });
-  const payload = await patientHttpJson(`${PATIENT_API_BASE_URL}/appointment/patient/${encodeURIComponent(patientId)}?${params}`, { token: session.token });
-  if (!Array.isArray(payload?.data)) throw new Error('Invalid appointments response from BATO server.');
-  return payload.data;
+  const params = new URLSearchParams({
+    status: String(status),
+    session_status: String(session_status),
+    limit: String(limit),
+    offset: String(offset),
+  });
+  const payload = await patientHttpJson(
+    `${PATIENT_API_BASE_URL}/api/v1/patient/appointments?${params}`,
+    { token: session.token },
+  );
+  // The collection documents a patient-scoped listing, but not its exact JSON envelope.
+  // Accept standard { data: [...] } and { data: { appointments: [...] } } shapes.
+  const rows = Array.isArray(payload.data) ? payload.data
+    : Array.isArray(payload.data?.appointments) ? payload.data.appointments
+    : Array.isArray(payload.data?.data) ? payload.data.data
+    : Array.isArray(payload.appointments) ? payload.appointments
+    : null;
+  if (!rows) throw new Error('Unexpected patient appointments response.');
+  return rows;
+}
+
+/** Paginate the patient-scoped listing so the All tab isn't restricted to 50 records. */
+export async function getAllPatientAppointments() {
+  const limit = 50;
+  let offset = 0;
+  const all = [];
+  const seen = new Set();
+  // Defensive cap to prevent endless loops if a backend ignores offset.
+  for (let page = 0; page < 100; page += 1) {
+    const batch = await getPatientAppointments({ limit, offset });
+    let added = 0;
+    for (const row of batch) {
+      const key = row?.id == null ? `page:${page}:index:${added}` : String(row.id);
+      if (!seen.has(key)) { seen.add(key); all.push(row); added += 1; }
+    }
+    if (batch.length < limit || added === 0) break;
+    offset += batch.length;
+  }
+  return all;
 }
 
 /** Patient medical reports; both endpoints use the OTP-issued Bearer token. */
