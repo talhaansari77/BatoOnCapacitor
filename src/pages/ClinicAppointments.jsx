@@ -74,7 +74,49 @@ function mapClinicPatientAppointment(item) {
 function patientAppointmentCategory(appointment, now = Date.now()) {
   if (['completed', 'cancelled'].includes(appointment.status)) return 'history';
   const time = Date.parse(appointment.appointment_date);
-  return Number.isFinite(time) ? (time >= now ? 'upcoming' : 'history') : 'unscheduled';
+  if (!Number.isFinite(time)) return 'unscheduled';
+  return time >= now ? 'upcoming' : 'history';
+}
+
+// Requests are not confirmed appointments. Keep them in their own section and
+// always categorize actual appointments from the appointment API only.
+function matchesPatientAppointmentFilter(appointment, filter, now = Date.now()) {
+  if (filter === 'all') return true;
+  if (filter === 'confirmed') return appointment.status === '1' || appointment.status === 'confirmed';
+  return patientAppointmentCategory(appointment, now) === filter;
+}
+
+function PatientRequestCard({ request, t, isRTL }) {
+  const rawStatus = String(request.status || 'pending').toLowerCase();
+  const status = {
+    pending: { en: 'Awaiting confirmation', ar: 'بانتظار التأكيد', color: '#98733F' },
+    approved: { en: 'Confirmed', ar: 'مؤكد', color: '#197556' },
+    confirmed: { en: 'Confirmed', ar: 'مؤكد', color: '#197556' },
+    cancelled: { en: 'Cancelled', ar: 'ملغى', color: '#B44639' },
+    rejected: { en: 'Declined', ar: 'مرفوض', color: '#B44639' },
+  }[rawStatus] || { en: rawStatus.replace(/_/g, ' '), ar: rawStatus.replace(/_/g, ' '), color: '#625749' };
+  const date = String(request.date || request.preferred_date || '').slice(0, 10);
+  const slot = request.preferred_slot || request.slot || {};
+  const range = request.preferred_slot_label || slot.label || slot.name || request.slot_label || '';
+  const dateObj = /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T12:00:00+03:00`) : null;
+  const dateText = dateObj && !Number.isNaN(dateObj.getTime())
+    ? new Intl.DateTimeFormat(isRTL ? 'ar-KW' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kuwait' }).format(dateObj)
+    : t('Date to be confirmed', 'التاريخ لم يحدد');
+  const careUrl = careMessageUrl('general_consultation');
+  return <article className="rounded-[24px] border border-[#D2CDC5] bg-[#EEEBE6] shadow-[0_5px_14px_rgba(38,32,24,0.10)] p-5 space-y-3">
+    <p className="text-xs text-[#6D665D]"><CareText value={request.category || request.category_name || t('Appointment request', 'طلب موعد')}/></p>
+    <div className="flex items-center gap-2">
+      <Clock className="w-5 h-5 shrink-0" style={{ color: status.color }} aria-hidden="true" />
+      <span className="font-semibold text-[15px] text-[#242424]">{isRTL ? status.ar : status.en}</span>
+    </div>
+    <p className="font-semibold text-[15px] text-[#292929]">{dateText}{range ? ` · ${range}` : ''}</p>
+    <p className="text-xs text-[#665F58]">{t('Clinic local time · Kuwait', 'توقيت العيادة المحلي · الكويت')}</p>
+    <p className="text-sm text-[#302B26] leading-6">{request.note || t('This is your preferred date and time. Please wait for the clinic to confirm before planning your visit.', 'هذا هو التاريخ والوقت المفضلان لديك. يرجى انتظار تأكيد العيادة قبل التخطيط للزيارة.')}</p>
+    <div className="space-y-2">
+      <a href={careUrl} className="block w-full text-start rounded-xl border border-[#DED6CA] px-4 py-3 text-sm text-[#302B26] hover:bg-white/40">{t('Contact customer service', 'تواصل مع خدمة العملاء')}</a>
+      <a href={careUrl} className="block w-full text-start rounded-xl border border-[#DED6CA] px-4 py-3 text-sm text-[#302B26] hover:bg-white/40">{t('Request a change', 'طلب تعديل')}</a>
+    </div>
+  </article>;
 }
 
 function PatientAppointmentCard({ appointment, t, isRTL, onReschedule }) {
@@ -98,15 +140,12 @@ function PatientAppointmentCard({ appointment, t, isRTL, onReschedule }) {
     <div className="flex items-center gap-2 flex-wrap">
       <Clock className="w-5 h-5 shrink-0" style={{ color: config.foreground }} aria-hidden="true" />
       <span className="font-semibold text-[15px] text-[#242424]">{label}</span>
-      <span className="text-xs rounded-full px-2.5 py-1 font-semibold border" style={{ color: config.foreground, background: config.background, borderColor: config.border }}>{label}</span>
     </div>
     <p className="font-semibold text-[15px] text-[#292929]">
       {hasDate ? formatAppointment(appointment, 'EEEE, d MMM yyyy · h:mm a', { locale: isRTL ? ar : undefined }) : t('Date not available', 'التاريخ غير متاح')}
     </p>
     <p className="text-xs text-[#665F58]">{t('Clinic local time · Kuwait', 'توقيت العيادة المحلي · الكويت')}</p>
     <p className="text-sm text-[#302B26] leading-6">{note}</p>
-    {appointment.service_name && <p className="text-xs text-[#61584E]">{t('Service', 'الخدمة')}: <CareText value={appointment.service_name}/></p>}
-    {appointment.specialist_name && <p className="text-xs text-[#61584E]">{t('Doctor', 'الطبيب')}: <CareText value={appointment.specialist_name}/></p>}
     <div className="space-y-2">
       <a href={careMessageUrl(appointment.department)} target="_blank" rel="noopener noreferrer"
         className="block w-full text-start rounded-xl border border-[#DED6CA] px-4 py-3 text-sm text-[#302B26] hover:bg-white/40">
@@ -334,8 +373,7 @@ export default function ClinicAppointments() {
     {key:'all',label:t('All','الكل')},
     {key:'history',label:t('History','السابقة')},
   ];
-  const matchesPatientFilter = (apt, filter) => filter === 'all' ||
-    (filter === 'confirmed' ? ['1', 'confirmed'].includes(apt.status) : patientAppointmentCategory(apt) === filter);
+  const matchesPatientFilter = matchesPatientAppointmentFilter;
   const filteredPatientAppointments = patientSorted.filter(apt => matchesPatientFilter(apt, patientFilter));
 
 
@@ -367,30 +405,15 @@ export default function ClinicAppointments() {
           </section>
         )}
 
-        {isPatientSession && <section className="bg-white rounded-2xl shadow-sm border border-[#eeebe6] p-4 space-y-3">
+        {isPatientSession && <section className="space-y-3">
           <h2 className="bato-section-title">{t('My Appointment Requests', 'طلبات المواعيد')}</h2>
           {requestsPending ? <p className="text-sm text-[#7c8689]">{t('Loading requests…', 'جارٍ تحميل الطلبات…')}</p>
             : requestsError ? <p role="alert" className="text-sm text-red-700">{t('Could not load appointment requests. Please try again.', 'تعذر تحميل الطلبات.')}</p>
             : !patientRequests.length ? <p className="text-sm text-[#7c8689]">{t('No appointment requests submitted yet.', 'لم يتم إرسال طلبات مواعيد بعد.')}</p>
-            : patientRequests.map((request, index) => {
-              const slot = request.preferred_slot || request.slot || {};
-              const status = String(request.status || 'pending').toLowerCase();
-              const style = status === 'pending' ? {background:'#FFF2D9',color:'#91600F'}
-                : status === 'confirmed' || status === 'approved' ? {background:'#E5F4EF',color:'#197556'}
-                : status === 'cancelled' || status === 'rejected' ? {background:'#FDE9E7',color:'#B44639'}
-                : {background:'#E9EEFF',color:'#3755D9'};
-              const date = String(request.date || request.preferred_date || '').slice(0, 10);
-              const range = request.preferred_slot_label || slot.label || slot.name || request.slot_label || '';
-              return <div key={request.id ?? index} className="rounded-2xl border border-[#eeebe6] bg-[#f9f8f6] p-4 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-sm font-semibold text-[#3a2e1e]">{request.category || request.category_name || t('Appointment request','طلب موعد')}</span>
-                  <span className="text-xs font-semibold rounded-full px-2.5 py-1 capitalize" style={style}>{status.replace(/_/g,' ')}</span>
-                </div>
-                <p className="text-sm text-[#333435]">{date}{range ? ` · ${range}` : ''}</p>
-                {request.note && <p className="text-xs text-[#7c8689]">{request.note}</p>}
-                <p className="text-xs text-[#7c8689]">{t('Pending clinic confirmation unless stated otherwise.', 'بانتظار تأكيد العيادة ما لم يذكر خلاف ذلك.')}</p>
-              </div>;
-            })}
+            : <div className="space-y-3">{patientRequests.map((request, index) =>
+                <PatientRequestCard key={request.id ?? index} request={request} t={t} isRTL={isRTL}/>
+              )}</div>}
+
         </section>}
 
         {selection.missing&&<p role="alert" className="rounded-xl bg-white p-4 text-sm">{t("That appointment is not available in your records.","هذا الموعد غير متاح في سجلاتك.")}</p>}
